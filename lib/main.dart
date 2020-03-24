@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'Provider/DataBase.dart';
 import './Model/Data.dart';
 import './Provider/ListBloc.dart';
+import './Widgets/Drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(Main());
 
@@ -26,13 +28,20 @@ class _MainState extends State<Main> {
   final Bloc bloc = Bloc();
   final db = DBHelper.instance;
   var textController = TextEditingController();
+  bool isDark= false;
+
+
+  setTheme(value){
+    setState(() {
+      isDark = value;
+    });
+  }
 
   @override
   void initState() {
+    print(isDark);
     super.initState();
   }
-  
-
 
   @override
   void dispose() {
@@ -46,9 +55,15 @@ class _MainState extends State<Main> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Bunker",
+      theme: ThemeData(
+          brightness: isDark? Brightness.dark:Brightness.light
+      ),
       home: SafeArea(
         child: Builder(
           builder: (context) => Scaffold(
+            drawer: Drawer(
+              child: drawerView(isDark,setTheme),
+            ),
             floatingActionButton: FloatingActionButton(
               backgroundColor: floatingBTn,
               onPressed: () {
@@ -57,16 +72,19 @@ class _MainState extends State<Main> {
               child: Icon(Icons.add,color: trueText,),
             ),
             appBar: AppBar(
+              automaticallyImplyLeading: false,
               backgroundColor: Colors.transparent,
               elevation: 0.0,
               centerTitle: true,
               title: Text("Bunker",style: TextStyle(fontSize: 24.0,color: trueText),),
               actions: <Widget>[
-                IconButton(
-                  onPressed: (){
-                    bloc.deletAll();
-                  },
-                  icon: Icon(Icons.settings,color: trueText,),
+                Builder(
+                  builder:(context)=> IconButton(
+                    onPressed: (){
+                      Scaffold.of(context).openDrawer();
+                    },
+                    icon: Icon(Icons.settings,color: trueText,),
+                  ),
                 )
               ],
             ),

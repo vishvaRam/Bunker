@@ -71,10 +71,10 @@ class DBHelper {
     }
   }
 
+  // ignore: missing_return
   Future<List<Data>> queryAll() async {
     try{
       Database db = await instance.database;
-
       final List<Map<String,dynamic>> result = await db.query(DBName,orderBy: "id DESC");
       if(result.length != null){
         print("Queried");
