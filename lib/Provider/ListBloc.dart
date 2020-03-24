@@ -32,26 +32,11 @@ class Bloc {
 
   attendedChange(Data data) async {
     await db.attendedAndTotalClassesIncrement(data);
-//    Data newData = Data(
-//        id: data.id,
-//        subject: data.subject,
-//        attended: data.attended++,
-//        totalClasses: data.totalClasses++);
-//    blocList.removeAt(data.id - 1);
-//    blocList.insert(data.id - 1, newData);
     listIN.add(blocList);
   }
 
   bunkChange(Data data) async {
     await db.bunkChanges(data);
-//    Data newData = Data(
-//        id: data.id,
-//        subject: data.subject,
-//        attended: data.attended,
-//        totalClasses: data.totalClasses++);
-//
-//    blocList.removeAt(data.id - 1);
-//    blocList.insert(data.id - 1, newData);
     listIN.add(blocList);
   }
 

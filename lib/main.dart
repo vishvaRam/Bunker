@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'Provider/DataBase.dart';
 import './Model/Data.dart';
@@ -13,10 +14,14 @@ class Main extends StatefulWidget {
 
 final Color trueBack =Color(0xffE0F2FE);
 final Color trueText = Color(0xff004879);
+final trueBtn = Color(0xff42b3ff);
+
+final Color falseBack = Color(0xffFFF2E7);
+final Color falseBtn = Color(0xffff5e7a);
+final Color falseText = Color(0xff810016);
+final Color floatingBTn = Color(0xff9ccff1);
 
 class _MainState extends State<Main> {
-
-
 
   final Bloc bloc = Bloc();
   final db = DBHelper.instance;
@@ -39,14 +44,29 @@ class _MainState extends State<Main> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "Bunker",
       home: SafeArea(
         child: Builder(
           builder: (context) => Scaffold(
             floatingActionButton: FloatingActionButton(
+              backgroundColor: floatingBTn,
               onPressed: () {
                 showbottomSheet(context,textController);
               },
-              child: Icon(Icons.add),
+              child: Icon(Icons.add,color: trueText,),
+            ),
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0.0,
+              centerTitle: true,
+              title: Text("Bunker",style: TextStyle(fontSize: 24.0,color: trueText),),
+              actions: <Widget>[
+                IconButton(
+                  onPressed: (){},
+                  icon: Icon(Icons.settings,color: trueText,),
+                )
+              ],
             ),
             body: Builder(
               builder: (context) => Container(
@@ -80,21 +100,24 @@ class _MainState extends State<Main> {
   }
 
   Padding buildCards(AsyncSnapshot snap, int i) {
-
+    int roundedPercentage =0;
+    if(snap.data[i].totalClasses != 0){
+      double percentage = ((snap.data[i].attended/snap.data[i].totalClasses)*100);
+      roundedPercentage = percentage.round();
+    }
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 15.0),
       child: Container(
         decoration: BoxDecoration(
-            color: trueBack,
+            color:roundedPercentage < 75? falseBack:trueBack,
             borderRadius: BorderRadius.all(Radius.circular(15.0))),
         height: 120.0,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             // Subject & button
-
             Expanded(
-              flex: 7,
+              flex: 6,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
@@ -102,7 +125,7 @@ class _MainState extends State<Main> {
                     padding: const EdgeInsets.only(left: 8.0, top: 15.0),
                     child: Text(
                       snap.data[i].subject,
-                      style: TextStyle(fontSize: 30.0,color: trueText),
+                      style: TextStyle(fontSize: 30.0,color:roundedPercentage<75?falseText: trueText),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
@@ -114,7 +137,7 @@ class _MainState extends State<Main> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         FlatButton(
-                          color: Colors.blue,
+                          color: roundedPercentage<75 ? falseBtn: trueBtn,
                           onPressed: ()  {
                             bloc.attendedChange(snap.data[i]);
                           },
@@ -127,7 +150,7 @@ class _MainState extends State<Main> {
                           ),
                         ),
                         FlatButton(
-                          color: Colors.blue,
+                          color:roundedPercentage<75 ? falseBtn: trueBtn,
                           onPressed: () {
                             bloc.bunkChange(snap.data[i]);
                           },
@@ -147,27 +170,29 @@ class _MainState extends State<Main> {
             ),
 
             // Percentage
-
             Expanded(
               flex: 4,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.only(
+                    padding: roundedPercentage == 100 ? EdgeInsets.only(
+                  left: 0.0, bottom: 0.0, top: 10.0):EdgeInsets.only(
                         left: 20.0, bottom: 0.0, top: 10.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
                         Text(
-                          "80",
-                          style: TextStyle(fontSize: 65.0,color: trueText),
+                          snap.data[i].totalClasses ==0? "0": roundedPercentage.toString(),
+                          style: TextStyle(fontSize: 65.0,color: roundedPercentage<75?falseText: trueText),
+                          textAlign: TextAlign.start,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
                           child: Text(
                             "%",
-                            style: TextStyle(fontSize: 26.0,color: trueText),
+                            style: TextStyle(fontSize: 26.0,color: roundedPercentage<75?falseText: trueText),
                           ),
                         ),
                       ],
