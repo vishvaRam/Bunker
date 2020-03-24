@@ -74,7 +74,7 @@ class DBHelper {
   Future<List<Data>> queryAll() async {
     Database db = await instance.database;
 
-    final List<Map<String,dynamic>> result = await db.query(DBName);
+    final List<Map<String,dynamic>> result = await db.query(DBName,orderBy: "id DESC");
     if(result.length != null){
       print("Queried");
       return List.generate(
@@ -92,4 +92,39 @@ class DBHelper {
       return null;
     }
   }
+
+  Future<void> attendedAndTotalClassesIncrement(Data data) async{
+    Database db = await instance.database;
+    Map<String,dynamic> mapData ={
+     "id":data.id,
+     "subject":data.subject,
+     "totalClasses":data.totalClasses++,
+     "attended":data.attended++
+    };
+    await db.update(
+        DBName,
+        mapData,
+        where: "id = ?",
+        whereArgs: [data.id]
+    );
+    print(mapData);
+  }
+
+  Future<void> bunkChanges(Data data) async{
+    Database db = await instance.database;
+    Map<String,dynamic> mapData ={
+      "id":data.id,
+      "subject":data.subject,
+      "totalClasses":data.totalClasses++,
+      "attended":data.attended
+    };
+    await db.update(
+        DBName,
+        mapData,
+        where: "id = ?",
+        whereArgs: [data.id]
+    );
+    print(mapData);
+  }
+
 }
