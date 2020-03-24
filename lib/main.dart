@@ -63,7 +63,9 @@ class _MainState extends State<Main> {
               title: Text("Bunker",style: TextStyle(fontSize: 24.0,color: trueText),),
               actions: <Widget>[
                 IconButton(
-                  onPressed: (){},
+                  onPressed: (){
+                    bloc.deletAll();
+                  },
                   icon: Icon(Icons.settings,color: trueText,),
                 )
               ],
@@ -106,7 +108,7 @@ class _MainState extends State<Main> {
       roundedPercentage = percentage.round();
     }
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 25.0, vertical: 15.0),
+      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
       child: Container(
         decoration: BoxDecoration(
             color:roundedPercentage < 75? falseBack:trueBack,
@@ -267,7 +269,7 @@ class _MainState extends State<Main> {
                                 _textController.clear();
                               }
                             },
-                            color: Colors.blue,
+                            color: trueBtn,
                             shape: RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(30.0),
                             ),

@@ -21,6 +21,9 @@ class Bloc {
 
   getData() async {
     var result = await db.queryAll();
+    if(result.length !=0){
+      print(result[0].totalClasses);
+    }
    blocList = result;
     _listController.add(blocList);
   }
@@ -31,13 +34,35 @@ class Bloc {
   }
 
   attendedChange(Data data) async {
-    await db.attendedAndTotalClassesIncrement(data);
-    listIN.add(blocList);
+   try{
+     await db.attendedAndTotalClassesIncrement(data);
+     for(int i =0; i<blocList.length;i++){
+       while(blocList[i].subject == data.subject){
+         blocList[i].totalClasses++;
+         blocList[i].attended++;
+         break;
+       }
+     }
+     listIN.add(blocList);
+   }catch(e){print(e);}
   }
 
   bunkChange(Data data) async {
-    await db.bunkChanges(data);
-    listIN.add(blocList);
+     try{
+       await db.bunkChanges(data);
+       for(int i =0; i<blocList.length;i++){
+         while(blocList[i].subject == data.subject){
+           blocList[i].totalClasses++;
+           break;
+         }
+       }
+       listIN.add(blocList);
+     }catch(e){print(e);}
+  }
+
+  deletAll() async{
+    await db.deleteAll();
+    getData();
   }
 
   void dispose() {

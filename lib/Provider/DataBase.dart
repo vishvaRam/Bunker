@@ -57,13 +57,13 @@ class DBHelper {
   // ignore: missing_return
   Future<int> insert(String text) async {
     try {
-      print("$text inserted");
       Map<String, dynamic> values = {
         "subject": text,
         "totalClasses": 0,
         "attended": 0
       };
       Database db = await instance.database;
+      print("from insert "+db.toString());
       return await db.insert(DBName, values,
           conflictAlgorithm: ConflictAlgorithm.ignore);
     } catch (e) {
@@ -72,59 +72,85 @@ class DBHelper {
   }
 
   Future<List<Data>> queryAll() async {
-    Database db = await instance.database;
+    try{
+      Database db = await instance.database;
 
-    final List<Map<String,dynamic>> result = await db.query(DBName,orderBy: "id DESC");
-    if(result.length != null){
-      print("Queried");
-      return List.generate(
-          result.length,
-              (i){
-            return Data(
-                id: result[i]['id'],
-                subject: result[i]['subject'],
-                totalClasses: result[i]['totalClasses'],
-                attended: result[i]['attended']
-            );
-          }
-      );
-    }else{
-      return null;
-    }
+      final List<Map<String,dynamic>> result = await db.query(DBName,orderBy: "id DESC");
+      if(result.length != null){
+        print("Queried");
+        return List.generate(
+            result.length,
+                (i){
+              return Data(
+                  id: result[i]['id'],
+                  subject: result[i]['subject'],
+                  totalClasses: result[i]['totalClasses'],
+                  attended: result[i]['attended']
+              );
+            }
+        );
+      }else{
+        return null;
+      }
+    }catch(e){print(e);}
+
   }
 
   Future<void> attendedAndTotalClassesIncrement(Data data) async{
-    Database db = await instance.database;
-    Map<String,dynamic> mapData ={
-     "id":data.id,
-     "subject":data.subject,
-     "totalClasses":data.totalClasses++,
-     "attended":data.attended++
-    };
-    await db.update(
-        DBName,
-        mapData,
-        where: "id = ?",
-        whereArgs: [data.id]
-    );
-    print(mapData);
+    try{
+      print(data.totalClasses.toString()+" and "+data.attended.toString());
+
+      Database db = await instance.database;
+
+      int newAttended = data.attended+1;
+      int newTotalClasses = data.totalClasses+1;
+
+      Map<String,dynamic> mapData ={
+        "id":data.id,
+        "subject":data.subject,
+        "totalClasses":newTotalClasses,
+        "attended":newAttended
+      };
+      var res = await db.update(
+          DBName,
+          mapData,
+          where: "id = ?",
+          whereArgs: [data.id]
+      );
+
+      print("in DB"+res.toString()+ mapData.toString());
+    }
+    catch(e){print(e);}
   }
 
   Future<void> bunkChanges(Data data) async{
+    try{
+      print(data.totalClasses.toString()+" and "+data.attended.toString());
+      Database db = await instance.database;
+
+      int newAttended = data.attended;
+      int newTotalClasses = data.totalClasses+1;
+
+      Map<String,dynamic> mapData ={
+        "id":data.id,
+        "subject":data.subject,
+        "totalClasses":newTotalClasses,
+        "attended":newAttended
+      };
+      var res = await db.update(
+          DBName,
+          mapData,
+          where: "id = ?",
+          whereArgs: [data.id]
+      );
+      print("form bunkChange"+res.toString()+" "+mapData.toString());
+    }catch(e){print(e);}
+  }
+
+  Future<void> deleteAll() async{
     Database db = await instance.database;
-    Map<String,dynamic> mapData ={
-      "id":data.id,
-      "subject":data.subject,
-      "totalClasses":data.totalClasses++,
-      "attended":data.attended
-    };
-    await db.update(
-        DBName,
-        mapData,
-        where: "id = ?",
-        whereArgs: [data.id]
-    );
-    print(mapData);
+    db.delete(DBName);
+
   }
 
 }
