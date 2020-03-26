@@ -23,14 +23,36 @@ final Color falseText = Color(0xff810016);
 final Color floatingBTn = Color(0xff9ccff1);
 
 class _MainState extends State<Main> {
+
   final Bloc bloc = Bloc();
   final db = DBHelper.instance;
   var textController = TextEditingController();
+  var popupInput = TextEditingController();
   bool isDark = false;
+  int minAttendence = 75;
+
+  setMinAttendence(int value){
+    print("setting ");
+    setState(() {
+      minAttendence = value;
+    });
+  }
 
   setTheme(value) {
     setState(() {
       isDark = value;
+    });
+  }
+
+  Future<int> getMinAttendence() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var res = prefs.getInt("minAttendence");
+    return res;
+  }
+  getMinAttendenceFromDisk() async{
+    var res = await getMinAttendence();
+    setState(() {
+      minAttendence = res ?? 75;
     });
   }
 
@@ -48,9 +70,12 @@ class _MainState extends State<Main> {
     });
   }
 
+  // Initi
   @override
   void initState() {
     print(isDark);
+    getMinAttendenceFromDisk();
+    print(minAttendence);
     getTheme();
     super.initState();
   }
@@ -58,6 +83,7 @@ class _MainState extends State<Main> {
   @override
   void dispose() {
     textController.dispose();
+    popupInput.dispose();
     bloc.dispose();
     super.dispose();
   }
@@ -72,46 +98,23 @@ class _MainState extends State<Main> {
         child: Builder(
           builder: (context) => Scaffold(
             drawer: Drawer(
-              child: drawerView(isDark, setTheme),
+              child: drawerView(isDark, setTheme, bloc,minAttendence,setMinAttendence,popupInput),
             ),
             floatingActionButton: Padding(
-              padding: const EdgeInsets.only(bottom:20.0),
+              padding: const EdgeInsets.only(bottom: 20.0),
               child: FloatingActionButton(
                 elevation: 12.0,
-                backgroundColor:isDark?floatingBTn:trueText,
+                backgroundColor: isDark ? floatingBTn : trueText,
                 onPressed: () {
                   showbottomSheet(context, textController);
                 },
                 child: Icon(
                   Icons.add,
-                  color:isDark? trueText:Colors.white,
+                  color: isDark ? trueText : Colors.white,
                 ),
               ),
             ),
-            appBar: AppBar(
-              automaticallyImplyLeading: false,
-              backgroundColor: Colors.transparent,
-              elevation: 0.0,
-              centerTitle: true,
-              title: Text(
-                "Bunker",
-                style: TextStyle(
-                    fontSize: 24.0, color: isDark ? Colors.white : trueText),
-              ),
-              actions: <Widget>[
-                Builder(
-                  builder: (context) => IconButton(
-                    onPressed: () {
-                      Scaffold.of(context).openDrawer();
-                    },
-                    icon: Icon(
-                      Icons.settings,
-                      color: isDark ? Colors.white : trueText,
-                    ),
-                  ),
-                )
-              ],
-            ),
+            appBar: buildAppBar(),
             body: Builder(
               builder: (context) => Container(
                 height: MediaQuery.of(context).size.height,
@@ -134,15 +137,24 @@ class _MainState extends State<Main> {
                       itemBuilder: (BuildContext context, i) {
                         return Dismissible(
                             key: Key(snap.data[i].id.toString()),
-                            onDismissed: (direction){
-                                bloc.delete(snap.data[i].id);
+                            onDismissed: (direction) {
+                              bloc.delete(snap.data[i].id);
                             },
                             background: Padding(
-                              padding: const EdgeInsets.symmetric(vertical:15.0),
-                              child: Container(color: Colors.red,child: Center(child: Icon(Icons.delete,size: 32.0,),),),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 15.0),
+                              child: Container(
+                                color: Colors.red,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.delete,
+                                    size: 32.0,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                             ),
-                            child: buildCards(snap, i)
-                        );
+                            child: buildCards(snap, i));
                       },
                     );
                   },
@@ -152,6 +164,33 @@ class _MainState extends State<Main> {
           ),
         ),
       ),
+    );
+  }
+
+  AppBar buildAppBar() {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      elevation: 0.0,
+      centerTitle: true,
+      title: Text(
+        "Bunker",
+        style:
+            TextStyle(fontSize: 24.0, color: isDark ? Colors.white : trueText),
+      ),
+      actions: <Widget>[
+        Builder(
+          builder: (context) => IconButton(
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+            icon: Icon(
+              Icons.settings,
+              color: isDark ? Colors.white : trueText,
+            ),
+          ),
+        )
+      ],
     );
   }
 
@@ -166,7 +205,7 @@ class _MainState extends State<Main> {
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
       child: Container(
         decoration: BoxDecoration(
-            color: roundedPercentage < 75 ? falseBack : trueBack,
+            color: roundedPercentage < minAttendence? falseBack : trueBack,
             borderRadius: BorderRadius.all(Radius.circular(15.0))),
         height: 120.0,
         child: Row(
@@ -184,7 +223,7 @@ class _MainState extends State<Main> {
                       snap.data[i].subject,
                       style: TextStyle(
                           fontSize: 30.0,
-                          color: roundedPercentage < 75 ? falseText : trueText),
+                          color: roundedPercentage < minAttendence ? falseText : trueText),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
@@ -196,7 +235,7 @@ class _MainState extends State<Main> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         FlatButton(
-                          color: roundedPercentage < 75 ? falseBtn : trueBtn,
+                          color: roundedPercentage < minAttendence ? falseBtn : trueBtn,
                           onPressed: () {
                             bloc.attendedChange(snap.data[i]);
                           },
@@ -209,7 +248,7 @@ class _MainState extends State<Main> {
                           ),
                         ),
                         FlatButton(
-                          color: roundedPercentage < 75 ? falseBtn : trueBtn,
+                          color: roundedPercentage < minAttendence ? falseBtn : trueBtn,
                           onPressed: () {
                             bloc.bunkChange(snap.data[i]);
                           },
@@ -247,7 +286,7 @@ class _MainState extends State<Main> {
                               : roundedPercentage.toString(),
                           style: TextStyle(
                               fontSize: 65.0,
-                              color: roundedPercentage < 75
+                              color: roundedPercentage < minAttendence
                                   ? falseText
                                   : trueText),
                           textAlign: TextAlign.start,
@@ -259,7 +298,7 @@ class _MainState extends State<Main> {
                             "%",
                             style: TextStyle(
                                 fontSize: 26.0,
-                                color: roundedPercentage < 75
+                                color: roundedPercentage < minAttendence
                                     ? falseText
                                     : trueText),
                           ),
@@ -306,6 +345,7 @@ class _MainState extends State<Main> {
                       child: Text(
                         "Subject",
                         style: TextStyle(
+                          color: isDark? Colors.white: trueText,
                             fontSize: 32.0, fontWeight: FontWeight.w400),
                         textAlign: TextAlign.center,
                       ),
@@ -315,7 +355,7 @@ class _MainState extends State<Main> {
                           horizontal: 20.0, vertical: 15.0),
                       child: TextField(
                         controller: _textController,
-                        style: TextStyle(fontSize: 18.0),
+                        style: TextStyle(fontSize: 22.0),
                         decoration:
                             InputDecoration(hintText: "Type the subject"),
                         textAlign: TextAlign.center,
@@ -335,7 +375,7 @@ class _MainState extends State<Main> {
                                 _textController.clear();
                               }
                             },
-                            color: trueBtn,
+                            color: isDark? trueBtn: trueText,
                             shape: RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(30.0),
                             ),
