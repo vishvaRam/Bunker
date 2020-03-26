@@ -13,8 +13,7 @@ class Main extends StatefulWidget {
   _MainState createState() => _MainState();
 }
 
-
-final Color trueBack =Color(0xffE0F2FE);
+final Color trueBack = Color(0xffE0F2FE);
 final Color trueText = Color(0xff004879);
 final trueBtn = Color(0xff42b3ff);
 
@@ -24,22 +23,35 @@ final Color falseText = Color(0xff810016);
 final Color floatingBTn = Color(0xff9ccff1);
 
 class _MainState extends State<Main> {
-
   final Bloc bloc = Bloc();
   final db = DBHelper.instance;
   var textController = TextEditingController();
-  bool isDark= false;
+  bool isDark = false;
 
-
-  setTheme(value){
+  setTheme(value) {
     setState(() {
       isDark = value;
+    });
+  }
+
+  Future<bool> getThemeData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var res = prefs.getBool("theme");
+    print(res);
+    return res;
+  }
+
+  getTheme() async {
+    var res = await getThemeData();
+    setState(() {
+      isDark = res ?? false;
     });
   }
 
   @override
   void initState() {
     print(isDark);
+    getTheme();
     super.initState();
   }
 
@@ -55,35 +67,47 @@ class _MainState extends State<Main> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Bunker",
-      theme: ThemeData(
-          brightness: isDark? Brightness.dark:Brightness.light
-      ),
+      theme: ThemeData(brightness: isDark ? Brightness.dark : Brightness.light),
       home: SafeArea(
         child: Builder(
           builder: (context) => Scaffold(
             drawer: Drawer(
-              child: drawerView(isDark,setTheme),
+              child: drawerView(isDark, setTheme),
             ),
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: floatingBTn,
-              onPressed: () {
-                showbottomSheet(context,textController);
-              },
-              child: Icon(Icons.add,color: trueText,),
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.only(bottom:20.0),
+              child: FloatingActionButton(
+                elevation: 12.0,
+                backgroundColor:isDark?floatingBTn:trueText,
+                onPressed: () {
+                  showbottomSheet(context, textController);
+                },
+                child: Icon(
+                  Icons.add,
+                  color:isDark? trueText:Colors.white,
+                ),
+              ),
             ),
             appBar: AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: Colors.transparent,
               elevation: 0.0,
               centerTitle: true,
-              title: Text("Bunker",style: TextStyle(fontSize: 24.0,color: trueText),),
+              title: Text(
+                "Bunker",
+                style: TextStyle(
+                    fontSize: 24.0, color: isDark ? Colors.white : trueText),
+              ),
               actions: <Widget>[
                 Builder(
-                  builder:(context)=> IconButton(
-                    onPressed: (){
+                  builder: (context) => IconButton(
+                    onPressed: () {
                       Scaffold.of(context).openDrawer();
                     },
-                    icon: Icon(Icons.settings,color: trueText,),
+                    icon: Icon(
+                      Icons.settings,
+                      color: isDark ? Colors.white : trueText,
+                    ),
                   ),
                 )
               ],
@@ -100,13 +124,25 @@ class _MainState extends State<Main> {
                         child: CircularProgressIndicator(),
                       );
                     }
-                    if(snap.data.length ==0){
-                      return Center(child: Text("Empty"),);
+                    if (snap.data.length == 0) {
+                      return Center(
+                        child: Text("Empty"),
+                      );
                     }
                     return ListView.builder(
                       itemCount: snap.data.length,
                       itemBuilder: (BuildContext context, i) {
-                        return buildCards(snap, i);
+                        return Dismissible(
+                            key: Key(snap.data[i].id.toString()),
+                            onDismissed: (direction){
+                                bloc.delete(snap.data[i].id);
+                            },
+                            background: Padding(
+                              padding: const EdgeInsets.symmetric(vertical:15.0),
+                              child: Container(color: Colors.red,child: Center(child: Icon(Icons.delete,size: 32.0,),),),
+                            ),
+                            child: buildCards(snap, i)
+                        );
                       },
                     );
                   },
@@ -120,16 +156,17 @@ class _MainState extends State<Main> {
   }
 
   Padding buildCards(AsyncSnapshot snap, int i) {
-    int roundedPercentage =0;
-    if(snap.data[i].totalClasses != 0){
-      double percentage = ((snap.data[i].attended/snap.data[i].totalClasses)*100);
+    int roundedPercentage = 0;
+    if (snap.data[i].totalClasses != 0) {
+      double percentage =
+          ((snap.data[i].attended / snap.data[i].totalClasses) * 100);
       roundedPercentage = percentage.round();
     }
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
       child: Container(
         decoration: BoxDecoration(
-            color:roundedPercentage < 75? falseBack:trueBack,
+            color: roundedPercentage < 75 ? falseBack : trueBack,
             borderRadius: BorderRadius.all(Radius.circular(15.0))),
         height: 120.0,
         child: Row(
@@ -145,20 +182,22 @@ class _MainState extends State<Main> {
                     padding: const EdgeInsets.only(left: 8.0, top: 15.0),
                     child: Text(
                       snap.data[i].subject,
-                      style: TextStyle(fontSize: 30.0,color:roundedPercentage<75?falseText: trueText),
+                      style: TextStyle(
+                          fontSize: 30.0,
+                          color: roundedPercentage < 75 ? falseText : trueText),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
                   ),
                   Padding(
                     padding:
-                    const EdgeInsets.only(left: 15.0, bottom: 8, top: 10.0),
+                        const EdgeInsets.only(left: 15.0, bottom: 8, top: 10.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         FlatButton(
-                          color: roundedPercentage<75 ? falseBtn: trueBtn,
-                          onPressed: ()  {
+                          color: roundedPercentage < 75 ? falseBtn : trueBtn,
+                          onPressed: () {
                             bloc.attendedChange(snap.data[i]);
                           },
                           shape: RoundedRectangleBorder(
@@ -170,7 +209,7 @@ class _MainState extends State<Main> {
                           ),
                         ),
                         FlatButton(
-                          color:roundedPercentage<75 ? falseBtn: trueBtn,
+                          color: roundedPercentage < 75 ? falseBtn : trueBtn,
                           onPressed: () {
                             bloc.bunkChange(snap.data[i]);
                           },
@@ -196,15 +235,21 @@ class _MainState extends State<Main> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Padding(
-                    padding: roundedPercentage == 100 ? EdgeInsets.only(
-                  left: 0.0, bottom: 0.0, top: 10.0):EdgeInsets.only(
-                        left: 20.0, bottom: 0.0, top: 10.0),
+                    padding: roundedPercentage == 100
+                        ? EdgeInsets.only(left: 0.0, bottom: 0.0, top: 10.0)
+                        : EdgeInsets.only(left: 20.0, bottom: 0.0, top: 10.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
                         Text(
-                          snap.data[i].totalClasses ==0? "0": roundedPercentage.toString(),
-                          style: TextStyle(fontSize: 65.0,color: roundedPercentage<75?falseText: trueText),
+                          snap.data[i].totalClasses == 0
+                              ? "0"
+                              : roundedPercentage.toString(),
+                          style: TextStyle(
+                              fontSize: 65.0,
+                              color: roundedPercentage < 75
+                                  ? falseText
+                                  : trueText),
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -212,7 +257,11 @@ class _MainState extends State<Main> {
                           padding: const EdgeInsets.only(bottom: 10.0),
                           child: Text(
                             "%",
-                            style: TextStyle(fontSize: 26.0,color: roundedPercentage<75?falseText: trueText),
+                            style: TextStyle(
+                                fontSize: 26.0,
+                                color: roundedPercentage < 75
+                                    ? falseText
+                                    : trueText),
                           ),
                         ),
                       ],
@@ -234,8 +283,9 @@ class _MainState extends State<Main> {
     );
   }
 
-  showbottomSheet(context,TextEditingController _textController) {
+  showbottomSheet(context, TextEditingController _textController) {
     showModalBottomSheet(
+        backgroundColor: Colors.transparent,
         context: context,
         builder: (context) {
           return AnimatedPadding(
@@ -243,12 +293,10 @@ class _MainState extends State<Main> {
             curve: Curves.easeIn,
             padding: MediaQuery.of(context).viewInsets,
             child: Container(
-              color: Colors.transparent,
+              color: isDark ? Color(0xff323F4D) : Colors.white,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white70,
-                  borderRadius:
-                  BorderRadius.only(topRight: Radius.circular(30)),
+                  color: isDark ? Color(0xff323F4D) : Colors.white,
                 ),
                 child: Wrap(
                   alignment: WrapAlignment.center,
@@ -269,7 +317,7 @@ class _MainState extends State<Main> {
                         controller: _textController,
                         style: TextStyle(fontSize: 18.0),
                         decoration:
-                        InputDecoration(hintText: "Type the subject"),
+                            InputDecoration(hintText: "Type the subject"),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -305,5 +353,4 @@ class _MainState extends State<Main> {
           );
         });
   }
-
 }

@@ -150,7 +150,11 @@ class DBHelper {
   Future<void> deleteAll() async{
     Database db = await instance.database;
     db.delete(DBName);
+  }
 
+  Future<void> delete(int id) async{
+    Database db = await instance.database;
+    await db.delete(DBName,where: "id=?",whereArgs: [id]);
   }
 
 }

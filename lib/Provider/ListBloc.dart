@@ -60,6 +60,11 @@ class Bloc {
      }catch(e){print(e);}
   }
 
+  delete(int id) async{
+    blocList.removeWhere((item)=> item.id == id);
+    await db.delete(id);
+  }
+
   deletAll() async{
     await db.deleteAll();
     getData();
