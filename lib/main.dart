@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import './PeriodicAttendence.dart';
+import 'Pages/PeriodicAttendence.dart';
+import 'Pages/Intro.dart';
 
 void main() => runApp(Main());
 
@@ -11,7 +12,7 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
 
-  bool isDark = false;
+  bool isDark = true;
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +23,8 @@ class _MainState extends State<Main> {
           data: ThemeData(
               brightness: isDark ? Brightness.dark : Brightness.light),
           child: Builder(
-              builder: (context) => Periodic(
-                    isDark: isDark,
-                  ))),
+              builder: (context) => Intro(isDark))),
+//              builder: (context) => Periodic(isDark: isDark,))),
     );
   }
 }

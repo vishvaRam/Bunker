@@ -1,8 +1,8 @@
 import 'package:bunker/Provider/ListBloc.dart';
 import 'package:flutter/material.dart';
-import './Widgets/Drawer.dart';
-import './Model/Data.dart';
-import './Provider/DataBase.dart';
+import '../Widgets/Drawer.dart';
+import '../Model/Data.dart';
+import '../Provider/DataBase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final Color trueBack = Color(0xffE0F2FE);
@@ -14,6 +14,7 @@ final Color falseBtn = Color(0xffff5e7a);
 final Color falseText = Color(0xff810016);
 final Color floatingBTn = Color(0xff9ccff1);
 
+// ignore: must_be_immutable
 class Periodic extends StatefulWidget {
   Periodic({this.isDark});
   bool isDark;
