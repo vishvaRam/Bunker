@@ -2,6 +2,8 @@ import 'package:bunker/Provider/ListBloc.dart';
 import 'package:flutter/material.dart';
 import './Widgets/Drawer.dart';
 import './Model/Data.dart';
+import './Provider/DataBase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final Color trueBack = Color(0xffE0F2FE);
 final Color trueText = Color(0xff004879);
@@ -13,86 +15,145 @@ final Color falseText = Color(0xff810016);
 final Color floatingBTn = Color(0xff9ccff1);
 
 class Periodic extends StatefulWidget {
-  Periodic({this.isDark,this.setTheme,this.bloc,this.setMinAttendence,this.popupInput,this.minAttendence,this.textController});
-  Function setMinAttendence;
-  TextEditingController popupInput;
-  TextEditingController textController;
-  int minAttendence;
+  Periodic({this.isDark});
   bool isDark;
-  Function setTheme;
-  Bloc bloc;
   @override
   _PeriodicState createState() => _PeriodicState();
 }
 
 class _PeriodicState extends State<Periodic> {
+  final Bloc bloc = Bloc();
+  final db = DBHelper.instance;
+  var textController = TextEditingController();
+  var popupInput = TextEditingController();
+  int minAttendence = 75;
+
+  setMinAttendence(int value){
+    print("setting ");
+    setState(() {
+      minAttendence = value;
+    });
+  }
+
+  setTheme(value) {
+    setState(() {
+      widget.isDark = value;
+    });
+  }
+
+  Future<int> getMinAttendence() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var res = prefs.getInt("minAttendence");
+    return res;
+  }
+  getMinAttendenceFromDisk() async{
+    var res = await getMinAttendence();
+    setState(() {
+      minAttendence = res ?? 75;
+    });
+  }
+
+  Future<bool> getThemeData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var res = prefs.getBool("theme");
+    print(res);
+    return res;
+  }
+
+  getTheme() async {
+    var res = await getThemeData();
+    setState(() {
+      widget.isDark = res ?? false;
+    });
+  }
+
+  // Initi
+  @override
+  void initState() {
+    print( widget.isDark);
+    getMinAttendenceFromDisk();
+    print(minAttendence);
+    getTheme();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    popupInput.dispose();
+    bloc.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Builder(
-        builder: (context) => Scaffold(
-          drawer: Drawer(
-            child: drawerView(widget.isDark, widget.setTheme, widget.bloc,widget.minAttendence,widget.setMinAttendence,widget.popupInput),
-          ),
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: FloatingActionButton(
-              elevation: 12.0,
-              backgroundColor: widget.isDark ? floatingBTn : trueText,
-              onPressed: () {
-                showbottomSheet(context, widget.textController);
-              },
-              child: Icon(
-                Icons.add,
-                color: widget.isDark ? trueText : Colors.white,
+      child: Theme(
+        data: ThemeData(brightness: widget.isDark ? Brightness.dark : Brightness.light),
+        child: Builder(
+          builder: (context) => Scaffold(
+            drawer: Drawer(
+              child: drawerView( widget.isDark, setTheme, bloc,minAttendence,setMinAttendence,popupInput),
+            ),
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: FloatingActionButton(
+                elevation: 12.0,
+                backgroundColor:  widget.isDark ? floatingBTn : trueText,
+                onPressed: () {
+                  showbottomSheet(context, textController);
+                },
+                child: Icon(
+                  Icons.add,
+                  color:  widget.isDark ? trueText : Colors.white,
+                ),
               ),
             ),
-          ),
-          appBar: buildAppBar(),
-          body: Builder(
-            builder: (context) => Container(
-              height: MediaQuery.of(context).size.height,
-              child: StreamBuilder<List<Data>>(
-                stream: widget.bloc.listOUT,
-                builder:
-                    (BuildContext context, AsyncSnapshot<List<Data>> snap) {
-                  if (!snap.hasData) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (snap.data.length == 0) {
-                    return Center(
-                      child: Text("Empty"),
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: snap.data.length,
-                    itemBuilder: (BuildContext context, i) {
-                      return Dismissible(
-                          key: Key(snap.data[i].id.toString()),
-                          onDismissed: (direction) {
-                            widget.bloc.delete(snap.data[i].id);
-                            widget.bloc.getData();
-                          },
-                          background: Padding(
-                            padding:
-                            const EdgeInsets.symmetric(vertical: 15.0),
-                            child: Container(
-                              color: Colors.red,
-                              child: Center(
-                                child: Icon(
-                                  Icons.delete,
-                                  size: 32.0,
-                                  color: Colors.white,
+            appBar: buildAppBar(),
+            body: Builder(
+              builder: (context) => Container(
+                height: MediaQuery.of(context).size.height,
+                child: StreamBuilder<List<Data>>(
+                  stream: bloc.listOUT,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<List<Data>> snap) {
+                    if (!snap.hasData) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (snap.data.length == 0) {
+                      return Center(
+                        child: Text("Empty"),
+                      );
+                    }
+                    return ListView.builder(
+                      itemCount: snap.data.length,
+                      itemBuilder: (BuildContext context, i) {
+                        return Dismissible(
+                            key: Key(snap.data[i].id.toString()),
+                            onDismissed: (direction) {
+                               bloc.delete(snap.data[i].id);
+                                bloc.getData();
+                            },
+                            background: Padding(
+                              padding:
+                              const EdgeInsets.symmetric(vertical: 15.0),
+                              child: Container(
+                                color: Colors.red,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.delete,
+                                    size: 32.0,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          child: buildCards(snap, i));
-                    },
-                  );
-                },
+                            child: buildCards(snap, i));
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -111,7 +172,7 @@ class _PeriodicState extends State<Periodic> {
       title: Text(
         "Bunker",
         style:
-        TextStyle(fontSize: 24.0, color: widget.isDark ? Colors.white : trueText),
+        TextStyle(fontSize: 24.0, color:  widget.isDark ? Colors.white : trueText),
       ),
       actions: <Widget>[
         Builder(
@@ -121,7 +182,7 @@ class _PeriodicState extends State<Periodic> {
             },
             icon: Icon(
               Icons.settings,
-              color: widget.isDark ? Colors.white : trueText,
+              color:  widget.isDark ? Colors.white : trueText,
             ),
           ),
         )
@@ -140,7 +201,7 @@ class _PeriodicState extends State<Periodic> {
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
       child: Container(
         decoration: BoxDecoration(
-            color: roundedPercentage < widget.minAttendence? falseBack : trueBack,
+            color: roundedPercentage < minAttendence? falseBack : trueBack,
             borderRadius: BorderRadius.all(Radius.circular(15.0))),
         height: 120.0,
         child: Row(
@@ -158,7 +219,7 @@ class _PeriodicState extends State<Periodic> {
                       snap.data[i].subject,
                       style: TextStyle(
                           fontSize: 30.0,
-                          color: roundedPercentage < widget.minAttendence ? falseText : trueText),
+                          color: roundedPercentage < minAttendence ? falseText : trueText),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
@@ -170,9 +231,9 @@ class _PeriodicState extends State<Periodic> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         FlatButton(
-                          color: roundedPercentage < widget.minAttendence ? falseBtn : trueBtn,
+                          color: roundedPercentage < minAttendence ? falseBtn : trueBtn,
                           onPressed: () {
-                            widget.bloc.attendedChange(snap.data[i]);
+                            bloc.attendedChange(snap.data[i]);
                           },
                           shape: RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(9.0),
@@ -183,9 +244,9 @@ class _PeriodicState extends State<Periodic> {
                           ),
                         ),
                         FlatButton(
-                          color: roundedPercentage < widget.minAttendence ? falseBtn : trueBtn,
+                          color: roundedPercentage < minAttendence ? falseBtn : trueBtn,
                           onPressed: () {
-                            widget.bloc.bunkChange(snap.data[i]);
+                            bloc.bunkChange(snap.data[i]);
                           },
                           shape: RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(9.0),
@@ -221,7 +282,7 @@ class _PeriodicState extends State<Periodic> {
                               : roundedPercentage.toString(),
                           style: TextStyle(
                               fontSize: 65.0,
-                              color: roundedPercentage < widget.minAttendence
+                              color: roundedPercentage < minAttendence
                                   ? falseText
                                   : trueText),
                           textAlign: TextAlign.start,
@@ -233,7 +294,7 @@ class _PeriodicState extends State<Periodic> {
                             "%",
                             style: TextStyle(
                                 fontSize: 26.0,
-                                color: roundedPercentage <widget.minAttendence
+                                color: roundedPercentage <minAttendence
                                     ? falseText
                                     : trueText),
                           ),
@@ -267,10 +328,10 @@ class _PeriodicState extends State<Periodic> {
             curve: Curves.easeIn,
             padding: MediaQuery.of(context).viewInsets,
             child: Container(
-              color: widget.isDark ? Color(0xff323F4D) : Colors.white,
+              color:  widget.isDark ? Color(0xff323F4D) : Colors.white,
               child: Container(
                 decoration: BoxDecoration(
-                  color: widget.isDark ? Color(0xff323F4D) : Colors.white,
+                  color:  widget.isDark ? Color(0xff323F4D) : Colors.white,
                 ),
                 child: Wrap(
                   alignment: WrapAlignment.center,
@@ -280,7 +341,7 @@ class _PeriodicState extends State<Periodic> {
                       child: Text(
                         "Subject",
                         style: TextStyle(
-                            color: widget.isDark? Colors.white: trueText,
+                            color:  widget.isDark? Colors.white: trueText,
                             fontSize: 32.0, fontWeight: FontWeight.w400),
                         textAlign: TextAlign.center,
                       ),
@@ -306,11 +367,11 @@ class _PeriodicState extends State<Periodic> {
                             onPressed: () async {
                               if (_textController.text != "") {
                                 Navigator.pop(context);
-                                widget.bloc.addSubject(_textController.text);
+                                bloc.addSubject(_textController.text);
                                 _textController.clear();
                               }
                             },
-                            color: widget.isDark? trueBtn: trueText,
+                            color:  widget.isDark? trueBtn: trueText,
                             shape: RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(30.0),
                             ),
