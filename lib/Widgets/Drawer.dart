@@ -9,8 +9,8 @@ final Color trueBack = Color(0xffE0F2FE);
 final trueBtn = Color(0xff42b3ff);
 final Color floatingBTn = Color(0xff9ccff1);
 
-Widget drawerView(bool isDark, Function setTheme, Bloc bloc, int minAttendence,
-    Function setMinAttendence,TextEditingController popupInput) {
+Widget drawerView({bool isDark, Function setTheme, Bloc bloc, int minAttendence,
+  Function setMinAttendence,TextEditingController popupInput}) {
   _launchURL() async {
     const url = 'https://www.instagram.com/vishva_photography1/';
     if (await canLaunch(url)) {
@@ -51,7 +51,7 @@ Widget drawerView(bool isDark, Function setTheme, Bloc bloc, int minAttendence,
           trailing: Switch(
             value: isDark,
             onChanged: (value) async {
-              setTheme(value);
+             setTheme(value);
               await setThemeData(value);
             },
           ),

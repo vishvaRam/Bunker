@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Pages/PeriodicAttendence.dart';
 import 'Pages/Intro.dart';
+import './Pages/Day.dart';
 
 void main() => runApp(Main());
 
@@ -12,7 +14,48 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
 
-  bool isDark = true;
+  bool isDark = false;
+
+  Future<bool> getAppRunsFirstTime() async{
+    SharedPreferences prefs =await SharedPreferences.getInstance();
+    var res = await prefs.getBool("isFirstTime");
+    if(res == true){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  Future<bool> getType() async{
+    SharedPreferences prefs =await SharedPreferences.getInstance();
+    var res = await prefs.getBool("periodic");
+    if(res == true){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+  // Getting Theme
+  Future<bool> getThemeData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var res = prefs.getBool("theme");
+    print(res);
+    return res;
+  }
+
+  // Applying Theme
+  getTheme() async {
+    var res = await getThemeData();
+    setState(() {
+      isDark = res ?? false;
+    });
+  }
+
+  @override
+  void initState() {
+    getTheme();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +64,33 @@ class _MainState extends State<Main> {
       title: "Bunker",
       home: Theme(
           data: ThemeData(
-              brightness: isDark ? Brightness.dark : Brightness.light),
+              brightness: Brightness.dark),
           child: Builder(
-              builder: (context) => Intro(isDark))),
-//              builder: (context) => Periodic(isDark: isDark,))),
+              builder: (context) => FutureBuilder(
+                  future: getAppRunsFirstTime(),
+                  builder: (context,snapShot){
+                    if(snapShot.hasData){
+                      if(snapShot.data == true){
+                        return FutureBuilder(
+                          future: getType(),
+                          builder: (context,snapShot){
+                            if(snapShot.data == true){
+                              return Periodic(isDark: isDark,);
+                            }else{
+                              return Day(isDark);
+                            }
+                          },
+                        );
+                      }
+                      else{
+                        return Intro(isDark);
+                      }
+                    }
+                    return Center(child: CircularProgressIndicator(),);
+                  },
+              )
+          )
+      ),
     );
   }
 }

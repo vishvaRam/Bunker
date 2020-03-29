@@ -23,6 +23,7 @@ class Periodic extends StatefulWidget {
 }
 
 class _PeriodicState extends State<Periodic> {
+
   final Bloc bloc = Bloc();
   final db = DBHelper.instance;
   var textController = TextEditingController();
@@ -93,7 +94,7 @@ class _PeriodicState extends State<Periodic> {
         child: Builder(
           builder: (context) => Scaffold(
             drawer: Drawer(
-              child: drawerView( widget.isDark, setTheme, bloc,minAttendence,setMinAttendence,popupInput),
+              child: drawerView(isDark: widget.isDark,bloc: bloc,setTheme: setTheme,minAttendence: minAttendence,popupInput: popupInput,setMinAttendence: setMinAttendence),
             ),
             floatingActionButton: Padding(
               padding: const EdgeInsets.only(bottom: 20.0),

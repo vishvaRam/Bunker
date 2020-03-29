@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'PeriodicAttendence.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Day.dart';
 
 // ignore: must_be_immutable
 class Intro extends StatefulWidget {
@@ -14,6 +16,23 @@ final Color trueText = Color(0xff004879);
 final Color falseBtn = Color(0xffff5e7a);
 
 class _IntroState extends State<Intro> {
+  setAppRunsFirstTime() async {
+    print("first Time");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("isFirstTime", true);
+  }
+
+  setPeriodic(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool("periodic", value);
+  }
+
+  @override
+  void initState() {
+    setAppRunsFirstTime();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -21,7 +40,7 @@ class _IntroState extends State<Intro> {
       child: Scaffold(
         body: Center(
             child: Container(
-          height: 320.0,
+          height: 350.0,
           width: MediaQuery.of(context).size.width,
           margin: EdgeInsets.symmetric(horizontal: 30.0),
           child: Material(
@@ -34,7 +53,7 @@ class _IntroState extends State<Intro> {
                 children: <Widget>[
                   Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(top:20.0),
+                      padding: const EdgeInsets.only(top: 20.0),
                       child: Text(
                         "Bunker",
                         style: TextStyle(fontSize: 38.0, color: trueBack),
@@ -43,7 +62,7 @@ class _IntroState extends State<Intro> {
                   ),
                   Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(left:20.0,right: 8.0),
+                      padding: const EdgeInsets.only(left: 20.0, right: 8.0),
                       child: Text(
                           "Select the attendence type used in your schoole,college or Institute",
                           style:
@@ -79,7 +98,7 @@ class _IntroState extends State<Intro> {
                                   showDialog(
                                       context: (context),
                                       child: AlertDialog(
-                                        elevation: 9.0,
+                                        elevation: 12.0,
                                         title: Row(
                                           children: <Widget>[
                                             Icon(
@@ -102,9 +121,10 @@ class _IntroState extends State<Intro> {
                                             "This change is permanent.You cannot change after !"),
                                         actions: <Widget>[
                                           OutlineButton.icon(
-                                             borderSide: BorderSide(width: 1,color: trueBack),
+                                            borderSide: BorderSide(
+                                                width: 1, color: trueBack),
                                             onPressed: () {
-                                               Navigator.pop(context);
+                                              Navigator.pop(context);
                                             },
                                             icon: Icon(
                                               Icons.close,
@@ -118,16 +138,28 @@ class _IntroState extends State<Intro> {
                                                         FontWeight.w400)),
                                           ),
                                           FlatButton.icon(
-                                              color:trueBack ,
+                                              color: trueBack,
                                               onPressed: () {
-                                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Periodic(isDark: false,)));
+                                                setPeriodic(true);
+                                                Navigator.of(context).popUntil(
+                                                    (route) => route.isFirst);
+                                                Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            Periodic(
+                                                              isDark: false,
+                                                            )));
                                               },
-                                              icon: Icon(Icons.done,color: trueText),
+                                              icon: Icon(Icons.done,
+                                                  color: trueText),
                                               label: Text(
                                                 "OK",
                                                 style: TextStyle(
                                                     color: trueText,
-                                                    fontSize: 18.0, fontWeight: FontWeight.w400),
+                                                    fontSize: 18.0,
+                                                    fontWeight:
+                                                        FontWeight.w400),
                                               )),
                                         ],
                                       ));
@@ -152,7 +184,7 @@ class _IntroState extends State<Intro> {
                                   showDialog(
                                       context: (context),
                                       child: AlertDialog(
-                                        elevation: 9.0,
+                                        elevation: 12.0,
                                         title: Row(
                                           children: <Widget>[
                                             Icon(
@@ -162,11 +194,11 @@ class _IntroState extends State<Intro> {
                                             ),
                                             Padding(
                                               padding:
-                                              const EdgeInsets.all(8.0),
+                                                  const EdgeInsets.all(8.0),
                                               child: Text(
                                                 "WARNING",
                                                 style:
-                                                TextStyle(color: falseBtn),
+                                                    TextStyle(color: falseBtn),
                                               ),
                                             )
                                           ],
@@ -175,7 +207,8 @@ class _IntroState extends State<Intro> {
                                             "This change is permanent.You cannot change after !"),
                                         actions: <Widget>[
                                           OutlineButton.icon(
-                                            borderSide: BorderSide(width: 1,color: trueBack),
+                                            borderSide: BorderSide(
+                                                width: 1, color: trueBack),
                                             onPressed: () {
                                               Navigator.pop(context);
                                             },
@@ -188,19 +221,30 @@ class _IntroState extends State<Intro> {
                                                     color: trueBack,
                                                     fontSize: 18.0,
                                                     fontWeight:
-                                                    FontWeight.w400)),
+                                                        FontWeight.w400)),
                                           ),
                                           FlatButton.icon(
-                                              color:trueBack ,
+                                              color: trueBack,
                                               onPressed: () {
-
+                                                setPeriodic(false);
+                                                Navigator.of(context).popUntil(
+                                                    (route) => route.isFirst);
+                                                Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            Day(widget
+                                                                .isDark)));
                                               },
-                                              icon: Icon(Icons.done,color: trueText),
+                                              icon: Icon(Icons.done,
+                                                  color: trueText),
                                               label: Text(
                                                 "OK",
                                                 style: TextStyle(
                                                     color: trueText,
-                                                    fontSize: 18.0, fontWeight: FontWeight.w400),
+                                                    fontSize: 18.0,
+                                                    fontWeight:
+                                                        FontWeight.w400),
                                               )),
                                         ],
                                       ));
