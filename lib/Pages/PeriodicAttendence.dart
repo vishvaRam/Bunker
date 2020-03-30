@@ -1,13 +1,17 @@
 import 'package:bunker/Provider/ListBloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../Widgets/Drawer.dart';
 import '../Model/Data.dart';
 import '../Provider/DataBase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
-final Color trueBack = Color(0xffE0F2FE);
+final Color trueBack = Color(0xffdeffec);
 final Color trueText = Color(0xff004879);
-final trueBtn = Color(0xff42b3ff);
+final Color trueTextgrn = Color(0xff016322);
+final trueBtn = Color(0xff00b549);
+final Color attendedTextCom = Colors.black54;
 
 final Color falseBack = Color(0xffFFF2E7);
 final Color falseBtn = Color(0xffff5e7a);
@@ -139,27 +143,36 @@ class _PeriodicState extends State<Periodic> {
                     return ListView.builder(
                       itemCount: snap.data.length,
                       itemBuilder: (BuildContext context, i) {
-                        return Dismissible(
-                            key: Key(snap.data[i].id.toString()),
-                            onDismissed: (direction) {
-                              bloc.delete(snap.data[i].id);
-                              bloc.getData();
-                            },
-                            background: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 15.0),
+                        return Slidable(
+                          closeOnScroll: true,
+                          actionPane: SlidableScrollActionPane(),
+                          actionExtentRatio: 0.25,
+                          child: buildCards(snap, i),
+                          actions: <Widget>[
+                            SlideAction(
                               child: Container(
-                                color: Colors.red,
-                                child: Center(
-                                  child: Icon(
-                                    Icons.delete,
-                                    size: 32.0,
-                                    color: Colors.white,
-                                  ),
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(15.0))
                                 ),
+                                child: Icon(Icons.delete,size: 38.0,color: widget.isDark ? Colors.redAccent:Colors.red,)
+                              ),
+                              onTap: (){
+                                bloc.delete(snap.data[i].id);
+                                bloc.getData();
+                              },
+                            ),
+                            SlideAction(
+                              child: Container( 
+                                padding: EdgeInsets.symmetric(vertical: 20),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(15.0))
+                                ),
+                                child: Icon(Icons.edit,size: 38.0,color: widget.isDark ? Colors.lightBlueAccent:Colors.blue,)
                               ),
                             ),
-                            child: buildCards(snap, i));
+                          ],
+                        );
                       },
                     );
                   },
@@ -230,7 +243,7 @@ class _PeriodicState extends State<Periodic> {
                           fontSize: 30.0,
                           color: roundedPercentage < minAttendence
                               ? falseText
-                              : trueText),
+                              : trueTextgrn),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
@@ -241,34 +254,41 @@ class _PeriodicState extends State<Periodic> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        FlatButton(
-                          color: roundedPercentage < minAttendence
-                              ? falseBtn
-                              : trueBtn,
-                          onPressed: () {
-                            bloc.attendedChange(snap.data[i]);
-                          },
-                          shape: RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(9.0),
-                          ),
-                          child: Text(
-                            "Attend",
-                            style: TextStyle(color: Colors.white),
+                        Expanded(
+                          child: FlatButton(
+                            color: roundedPercentage < minAttendence
+                                ? falseBtn
+                                : trueBtn,
+                            onPressed: () {
+                              bloc.attendedChange(snap.data[i]);
+                            },
+                            shape: RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(9.0),
+                            ),
+                            child: Text(
+                              "Attend",
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
-                        FlatButton(
-                          color: roundedPercentage < minAttendence
-                              ? falseBtn
-                              : trueBtn,
-                          onPressed: () {
-                            bloc.bunkChange(snap.data[i]);
-                          },
-                          shape: RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(9.0),
-                          ),
-                          child: Text(
-                            "Bunk",
-                            style: TextStyle(color: Colors.white),
+                        SizedBox(
+                          width: 20.0,
+                        ),
+                        Expanded(
+                          child: FlatButton(
+                            color: roundedPercentage < minAttendence
+                                ? falseBtn
+                                : trueBtn,
+                            onPressed: () {
+                              bloc.bunkChange(snap.data[i]);
+                            },
+                            shape: RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(9.0),
+                            ),
+                            child: Text(
+                              "Bunk",
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       ],
@@ -299,7 +319,7 @@ class _PeriodicState extends State<Periodic> {
                               fontSize: 65.0,
                               color: roundedPercentage < minAttendence
                                   ? falseText
-                                  : trueText),
+                                  : trueTextgrn),
                           textAlign: TextAlign.start,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -311,7 +331,7 @@ class _PeriodicState extends State<Periodic> {
                                 fontSize: 26.0,
                                 color: roundedPercentage < minAttendence
                                     ? falseText
-                                    : trueText),
+                                    : trueTextgrn),
                           ),
                         ),
                       ],
@@ -321,7 +341,7 @@ class _PeriodicState extends State<Periodic> {
                     padding: const EdgeInsets.only(bottom: 15.0),
                     child: Text(
                       "attended : ${snap.data[i].attended}/${snap.data[i].totalClasses} ",
-                      style: TextStyle(color: trueText),
+                      style: TextStyle(color: attendedTextCom),
                     ),
                   )
                 ],
@@ -387,14 +407,14 @@ class _PeriodicState extends State<Periodic> {
                                 _textController.clear();
                               }
                             },
-                            color: widget.isDark ? trueBtn : trueText,
+                            color: widget.isDark ? floatingBTn : trueText,
                             shape: RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(30.0),
                             ),
                             child: Text(
                               "ADD",
                               style: TextStyle(
-                                  fontSize: 18.0, color: Colors.white),
+                                  fontSize: 18.0, color: widget.isDark ? trueText : Colors.white),
                             )),
                       ),
                     )

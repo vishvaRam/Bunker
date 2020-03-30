@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// ignore: must_be_immutable
 class Day extends StatefulWidget {
   Day(this.isDark);
   bool isDark;
@@ -12,7 +13,8 @@ class Day extends StatefulWidget {
 
 final Color trueBack = Color(0xffE0F2FE);
 final Color trueText = Color(0xff004879);
-final trueBtn = Color(0xff42b3ff);
+final Color trueTextgrn = Color(0xff016322);
+final trueBtn = Color(0xff00b549);
 
 final Color falseBack = Color(0xffFFF2E7);
 final Color falseBtn = Color(0xffff5e7a);
@@ -153,7 +155,7 @@ class _DayState extends State<Day> {
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
-                color: roundedPercentage < minAttendence ? falseBack : trueBack,
+                color: roundedPercentage < minAttendence ? falseBack : trueTextgrn,
                 borderRadius: BorderRadius.all(Radius.circular(20.0))),
             child: Column(
               children: <Widget>[
@@ -291,6 +293,7 @@ class _DayState extends State<Day> {
     );
   }
 
+  // ignore: missing_return
   Widget warningWidget(int value) {
     if (value == 0) {
       return textWidget("Welcome to Class Bunker App",value);

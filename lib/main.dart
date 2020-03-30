@@ -18,7 +18,7 @@ class _MainState extends State<Main> {
 
   Future<bool> getAppRunsFirstTime() async{
     SharedPreferences prefs =await SharedPreferences.getInstance();
-    var res = await prefs.getBool("isFirstTime");
+    var res = prefs.getBool("isFirstTime");
     if(res == true){
       return true;
     }else{
@@ -28,7 +28,7 @@ class _MainState extends State<Main> {
 
   Future<bool> getType() async{
     SharedPreferences prefs =await SharedPreferences.getInstance();
-    var res = await prefs.getBool("periodic");
+    var res = prefs.getBool("periodic");
     if(res == true){
       return true;
     }else{
