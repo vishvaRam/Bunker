@@ -23,14 +23,13 @@ class Periodic extends StatefulWidget {
 }
 
 class _PeriodicState extends State<Periodic> {
-
   final Bloc bloc = Bloc();
   final db = DBHelper.instance;
   var textController = TextEditingController();
   var popupInput = TextEditingController();
   int minAttendence = 75;
 
-  setMinAttendence(int value){
+  setMinAttendence(int value) {
     print("setting ");
     setState(() {
       minAttendence = value;
@@ -43,12 +42,13 @@ class _PeriodicState extends State<Periodic> {
     });
   }
 
-  Future<int> getMinAttendence() async{
+  Future<int> getMinAttendence() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var res = prefs.getInt("minAttendence");
     return res;
   }
-  getMinAttendenceFromDisk() async{
+
+  getMinAttendenceFromDisk() async {
     var res = await getMinAttendence();
     setState(() {
       minAttendence = res ?? 75;
@@ -72,7 +72,7 @@ class _PeriodicState extends State<Periodic> {
   // Initi
   @override
   void initState() {
-    print( widget.isDark);
+    print(widget.isDark);
     getMinAttendenceFromDisk();
     print(minAttendence);
     getTheme();
@@ -86,27 +86,35 @@ class _PeriodicState extends State<Periodic> {
     bloc.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Theme(
-        data: ThemeData(brightness: widget.isDark ? Brightness.dark : Brightness.light),
+        data: ThemeData(
+            brightness: widget.isDark ? Brightness.dark : Brightness.light),
         child: Builder(
           builder: (context) => Scaffold(
             drawer: Drawer(
-              child: drawerView(isDark: widget.isDark,bloc: bloc,setTheme: setTheme,minAttendence: minAttendence,popupInput: popupInput,setMinAttendence: setMinAttendence),
+              child: drawerView(
+                  isDark: widget.isDark,
+                  bloc: bloc,
+                  setTheme: setTheme,
+                  minAttendence: minAttendence,
+                  popupInput: popupInput,
+                  setMinAttendence: setMinAttendence),
             ),
             floatingActionButton: Padding(
               padding: const EdgeInsets.only(bottom: 20.0),
               child: FloatingActionButton(
                 elevation: 12.0,
-                backgroundColor:  widget.isDark ? floatingBTn : trueText,
+                backgroundColor: widget.isDark ? floatingBTn : trueText,
                 onPressed: () {
                   showbottomSheet(context, textController);
                 },
                 child: Icon(
                   Icons.add,
-                  color:  widget.isDark ? trueText : Colors.white,
+                  color: widget.isDark ? trueText : Colors.white,
                 ),
               ),
             ),
@@ -134,12 +142,12 @@ class _PeriodicState extends State<Periodic> {
                         return Dismissible(
                             key: Key(snap.data[i].id.toString()),
                             onDismissed: (direction) {
-                               bloc.delete(snap.data[i].id);
-                                bloc.getData();
+                              bloc.delete(snap.data[i].id);
+                              bloc.getData();
                             },
                             background: Padding(
                               padding:
-                              const EdgeInsets.symmetric(vertical: 15.0),
+                                  const EdgeInsets.symmetric(vertical: 15.0),
                               child: Container(
                                 color: Colors.red,
                                 child: Center(
@@ -164,7 +172,6 @@ class _PeriodicState extends State<Periodic> {
     );
   }
 
-
   AppBar buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
@@ -173,8 +180,8 @@ class _PeriodicState extends State<Periodic> {
       centerTitle: true,
       title: Text(
         "Bunker",
-        style:
-        TextStyle(fontSize: 24.0, color:  widget.isDark ? Colors.white : trueText),
+        style: TextStyle(
+            fontSize: 24.0, color: widget.isDark ? Colors.white : trueText),
       ),
       actions: <Widget>[
         Builder(
@@ -184,7 +191,7 @@ class _PeriodicState extends State<Periodic> {
             },
             icon: Icon(
               Icons.settings,
-              color:  widget.isDark ? Colors.white : trueText,
+              color: widget.isDark ? Colors.white : trueText,
             ),
           ),
         )
@@ -196,14 +203,14 @@ class _PeriodicState extends State<Periodic> {
     int roundedPercentage = 0;
     if (snap.data[i].totalClasses != 0) {
       double percentage =
-      ((snap.data[i].attended / snap.data[i].totalClasses) * 100);
+          ((snap.data[i].attended / snap.data[i].totalClasses) * 100);
       roundedPercentage = percentage.round();
     }
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
       child: Container(
         decoration: BoxDecoration(
-            color: roundedPercentage < minAttendence? falseBack : trueBack,
+            color: roundedPercentage < minAttendence ? falseBack : trueBack,
             borderRadius: BorderRadius.all(Radius.circular(15.0))),
         height: 120.0,
         child: Row(
@@ -221,19 +228,23 @@ class _PeriodicState extends State<Periodic> {
                       snap.data[i].subject,
                       style: TextStyle(
                           fontSize: 30.0,
-                          color: roundedPercentage < minAttendence ? falseText : trueText),
+                          color: roundedPercentage < minAttendence
+                              ? falseText
+                              : trueText),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
                   ),
                   Padding(
                     padding:
-                    const EdgeInsets.only(left: 15.0, bottom: 8, top: 10.0),
+                        const EdgeInsets.only(left: 15.0, bottom: 8, top: 10.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         FlatButton(
-                          color: roundedPercentage < minAttendence ? falseBtn : trueBtn,
+                          color: roundedPercentage < minAttendence
+                              ? falseBtn
+                              : trueBtn,
                           onPressed: () {
                             bloc.attendedChange(snap.data[i]);
                           },
@@ -246,7 +257,9 @@ class _PeriodicState extends State<Periodic> {
                           ),
                         ),
                         FlatButton(
-                          color: roundedPercentage < minAttendence ? falseBtn : trueBtn,
+                          color: roundedPercentage < minAttendence
+                              ? falseBtn
+                              : trueBtn,
                           onPressed: () {
                             bloc.bunkChange(snap.data[i]);
                           },
@@ -296,7 +309,7 @@ class _PeriodicState extends State<Periodic> {
                             "%",
                             style: TextStyle(
                                 fontSize: 26.0,
-                                color: roundedPercentage <minAttendence
+                                color: roundedPercentage < minAttendence
                                     ? falseText
                                     : trueText),
                           ),
@@ -330,10 +343,10 @@ class _PeriodicState extends State<Periodic> {
             curve: Curves.easeIn,
             padding: MediaQuery.of(context).viewInsets,
             child: Container(
-              color:  widget.isDark ? Color(0xff323F4D) : Colors.white,
+              color: widget.isDark ? Color(0xff323F4D) : Colors.white,
               child: Container(
                 decoration: BoxDecoration(
-                  color:  widget.isDark ? Color(0xff323F4D) : Colors.white,
+                  color: widget.isDark ? Color(0xff323F4D) : Colors.white,
                 ),
                 child: Wrap(
                   alignment: WrapAlignment.center,
@@ -343,8 +356,9 @@ class _PeriodicState extends State<Periodic> {
                       child: Text(
                         "Subject",
                         style: TextStyle(
-                            color:  widget.isDark? Colors.white: trueText,
-                            fontSize: 32.0, fontWeight: FontWeight.w400),
+                            color: widget.isDark ? Colors.white : trueText,
+                            fontSize: 32.0,
+                            fontWeight: FontWeight.w400),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -355,7 +369,7 @@ class _PeriodicState extends State<Periodic> {
                         controller: _textController,
                         style: TextStyle(fontSize: 22.0),
                         decoration:
-                        InputDecoration(hintText: "Type the subject"),
+                            InputDecoration(hintText: "Type the subject"),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -373,7 +387,7 @@ class _PeriodicState extends State<Periodic> {
                                 _textController.clear();
                               }
                             },
-                            color:  widget.isDark? trueBtn: trueText,
+                            color: widget.isDark ? trueBtn : trueText,
                             shape: RoundedRectangleBorder(
                               borderRadius: new BorderRadius.circular(30.0),
                             ),

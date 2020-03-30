@@ -25,6 +25,7 @@ class _MainState extends State<Main> {
       return false;
     }
   }
+
   Future<bool> getType() async{
     SharedPreferences prefs =await SharedPreferences.getInstance();
     var res = await prefs.getBool("periodic");
@@ -46,6 +47,7 @@ class _MainState extends State<Main> {
   // Applying Theme
   getTheme() async {
     var res = await getThemeData();
+    print("get:"+res.toString());
     setState(() {
       isDark = res ?? false;
     });
@@ -76,14 +78,15 @@ class _MainState extends State<Main> {
                           builder: (context,snapShot){
                             if(snapShot.data == true){
                               return Periodic(isDark: isDark,);
-                            }else{
+                            }if(snapShot.data ==false){
                               return Day(isDark);
                             }
+                            return Center(child: CircularProgressIndicator(),);
                           },
                         );
                       }
                       else{
-                        return Intro(isDark);
+                        return Intro(true);
                       }
                     }
                     return Center(child: CircularProgressIndicator(),);

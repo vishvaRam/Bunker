@@ -148,7 +148,7 @@ class _IntroState extends State<Intro> {
                                                     MaterialPageRoute(
                                                         builder: (context) =>
                                                             Periodic(
-                                                              isDark: false,
+                                                              isDark: widget.isDark,
                                                             )));
                                               },
                                               icon: Icon(Icons.done,
