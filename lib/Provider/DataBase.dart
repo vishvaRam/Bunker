@@ -96,6 +96,7 @@ class DBHelper {
 
   }
 
+  // In General
   Future<void> attendedAndTotalClassesIncrement(Data data) async{
     try{
       print(data.totalClasses.toString()+" and "+data.attended.toString());
@@ -122,6 +123,29 @@ class DBHelper {
     }
     catch(e){print(e);}
   }
+
+  // Edit option
+  Future<void> editOption(Data data) async{
+    try{
+      Database db = await instance.database;
+      Map<String,dynamic> mapData ={
+        "id":data.id,
+        "subject":data.subject,
+        "totalClasses":data.totalClasses,
+        "attended":data.attended
+      };
+      var res = await db.update(
+          DBName,
+          mapData,
+          where: "id = ?",
+          whereArgs: [data.id]
+      );
+
+      print("in DB"+res.toString()+ mapData.toString());
+    }
+    catch(e){print(e);}
+  }
+
 
   Future<void> bunkChanges(Data data) async{
     try{

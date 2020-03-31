@@ -81,7 +81,7 @@ class _MainState extends State<Main> {
                             }if(snapShot.data ==false){
                               return Day(isDark);
                             }
-                            return Center(child: CircularProgressIndicator(),);
+                            return Container();
                           },
                         );
                       }
@@ -89,7 +89,7 @@ class _MainState extends State<Main> {
                         return Intro(true);
                       }
                     }
-                    return Center(child: CircularProgressIndicator(),);
+                    return Container();
                   },
               )
           )

@@ -60,6 +60,14 @@ class Bloc {
      }catch(e){print(e);}
   }
 
+  // Edit Option
+  editOption(Data data) async {
+    try{
+      await db.editOption(data);
+      listIN.add(blocList);
+    }catch(e){print(e);}
+  }
+
   delete(int id) async{
     blocList.removeWhere((item)=> item.id == id);
     await db.delete(id);

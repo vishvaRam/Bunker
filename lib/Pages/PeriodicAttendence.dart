@@ -6,8 +6,10 @@ import '../Model/Data.dart';
 import '../Provider/DataBase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import '../Widgets/AlartDialogWidget.dart';
 
-final Color trueBack = Color(0xffdeffec);
+final Color trueBack = Color(0xffE0F2FE);
+final Color trueBackgreen = Color(0xffDEFFEC);
 final Color trueText = Color(0xff004879);
 final Color trueTextgrn = Color(0xff016322);
 final trueBtn = Color(0xff00b549);
@@ -27,6 +29,7 @@ class Periodic extends StatefulWidget {
 }
 
 class _PeriodicState extends State<Periodic> {
+  // App States
   final Bloc bloc = Bloc();
   final db = DBHelper.instance;
   var textController = TextEditingController();
@@ -151,25 +154,91 @@ class _PeriodicState extends State<Periodic> {
                           actions: <Widget>[
                             SlideAction(
                               child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 20),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(15.0))
-                                ),
-                                child: Icon(Icons.delete,size: 38.0,color: widget.isDark ? Colors.redAccent:Colors.red,)
-                              ),
-                              onTap: (){
-                                bloc.delete(snap.data[i].id);
-                                bloc.getData();
+                                  padding: EdgeInsets.symmetric(vertical: 20),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(15.0))),
+                                  child: Icon(
+                                    Icons.delete,
+                                    size: 38.0,
+                                    color: widget.isDark
+                                        ? Colors.redAccent
+                                        : Colors.red,
+                                  )),
+                              onTap: () {
+                                showDialog(
+                                    context: (context),
+                                    child: listDeleteConfirm(snap, i, context));
                               },
                             ),
                             SlideAction(
-                              child: Container( 
-                                padding: EdgeInsets.symmetric(vertical: 20),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(15.0))
-                                ),
-                                child: Icon(Icons.edit,size: 38.0,color: widget.isDark ? Colors.lightBlueAccent:Colors.blue,)
-                              ),
+                              child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 20),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(15.0))),
+                                  child: Icon(
+                                    Icons.edit,
+                                    size: 38.0,
+                                    color: widget.isDark
+                                        ? Colors.lightBlueAccent
+                                        : Colors.blue,
+                                  )),
+                              onTap: () {
+                                showDialog(
+                                    context: (context),
+                                    child: AlartsetState(
+                                      isDark: widget.isDark,
+                                      bloc: bloc,
+                                      i: i,
+                                      snap: snap,
+                                    ));
+                              },
+                            ),
+                          ],
+                          secondaryActions: <Widget>[
+                            SlideAction(
+                              child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 20),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(15.0))),
+                                  child: Icon(
+                                    Icons.edit,
+                                    size: 38.0,
+                                    color: widget.isDark
+                                        ? Colors.lightBlueAccent
+                                        : Colors.blue,
+                                  )),
+                              onTap: () {
+                                showDialog(
+                                    context: (context),
+                                    child: AlartsetState(
+                                      isDark: widget.isDark,
+                                      bloc: bloc,
+                                      i: i,
+                                      snap: snap,
+                                    ));
+                              },
+                            ),
+                            SlideAction(
+                              child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: 20),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(15.0))),
+                                  child: Icon(
+                                    Icons.delete,
+                                    size: 38.0,
+                                    color: widget.isDark
+                                        ? Colors.redAccent
+                                        : Colors.red,
+                                  )),
+                              onTap: () {
+                                showDialog(
+                                    context: (context),
+                                    child: listDeleteConfirm(snap, i, context));
+                              },
                             ),
                           ],
                         );
@@ -183,6 +252,56 @@ class _PeriodicState extends State<Periodic> {
         ),
       ),
     );
+  }
+
+  AlertDialog listDeleteConfirm(
+      AsyncSnapshot<List<Data>> snap, int i, BuildContext context) {
+    return AlertDialog(
+        title: Text(
+          "Delete ${snap.data[i].subject} ?",
+          style: TextStyle(
+              fontSize: 24.0, color: widget.isDark ? Colors.white : trueText),
+        ),
+        content: Text("This is permanent and cannot be undone"),
+        elevation: 12.0,
+        actions: <Widget>[
+          OutlineButton.icon(
+            borderSide: BorderSide(
+              width: 2,
+              color: widget.isDark ? trueBack : trueText,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.close,
+              color: widget.isDark ? trueBack : trueText,
+            ),
+            label: Text("Cancel",
+                style: TextStyle(
+                    color: widget.isDark ? trueBack : trueText,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w400)),
+          ),
+          FlatButton.icon(
+              color: widget.isDark ? trueBack : trueText,
+              onPressed: () {
+                bloc.delete(snap.data[i].id);
+                bloc.getData();
+                Navigator.pop(context);
+              },
+              icon: Icon(
+                Icons.delete_outline,
+                color: widget.isDark ? trueText : Colors.white,
+              ),
+              label: Text(
+                "Delete",
+                style: TextStyle(
+                    color: widget.isDark ? trueText : Colors.white,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w400),
+              )),
+        ]);
   }
 
   AppBar buildAppBar() {
@@ -223,7 +342,8 @@ class _PeriodicState extends State<Periodic> {
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
       child: Container(
         decoration: BoxDecoration(
-            color: roundedPercentage < minAttendence ? falseBack : trueBack,
+            color:
+                roundedPercentage < minAttendence ? falseBack : trueBackgreen,
             borderRadius: BorderRadius.all(Radius.circular(15.0))),
         height: 120.0,
         child: Row(
@@ -309,19 +429,20 @@ class _PeriodicState extends State<Periodic> {
                         ? EdgeInsets.only(left: 0.0, bottom: 0.0, top: 10.0)
                         : EdgeInsets.only(left: 20.0, bottom: 0.0, top: 10.0),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
-                        Text(
-                          snap.data[i].totalClasses == 0
-                              ? "0"
-                              : roundedPercentage.toString(),
-                          style: TextStyle(
-                              fontSize: 65.0,
-                              color: roundedPercentage < minAttendence
-                                  ? falseText
-                                  : trueTextgrn),
-                          textAlign: TextAlign.start,
-                          overflow: TextOverflow.ellipsis,
+                        Center(
+                          child: Text(
+                             roundedPercentage.toString(),
+                            style: TextStyle(
+                                fontSize: 65.0,
+                                color: roundedPercentage < minAttendence
+                                    ? falseText
+                                    : trueTextgrn),
+                            textAlign: TextAlign.start,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
@@ -414,7 +535,9 @@ class _PeriodicState extends State<Periodic> {
                             child: Text(
                               "ADD",
                               style: TextStyle(
-                                  fontSize: 18.0, color: widget.isDark ? trueText : Colors.white),
+                                  fontSize: 18.0,
+                                  color:
+                                      widget.isDark ? trueText : Colors.white),
                             )),
                       ),
                     )

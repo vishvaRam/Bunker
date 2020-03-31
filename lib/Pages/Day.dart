@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../Widgets/AlartDialogWidget.dart';
 
 // ignore: must_be_immutable
 class Day extends StatefulWidget {
@@ -12,6 +13,7 @@ class Day extends StatefulWidget {
 }
 
 final Color trueBack = Color(0xffE0F2FE);
+final Color trueBackgreen = Color(0xffDEFFEC);
 final Color trueText = Color(0xff004879);
 final Color trueTextgrn = Color(0xff016322);
 final trueBtn = Color(0xff00b549);
@@ -83,6 +85,7 @@ class _DayState extends State<Day> {
     print(res);
     return res;
   }
+
   Future<int> getTotalDays() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var res = prefs.getInt("totalDays");
@@ -96,6 +99,7 @@ class _DayState extends State<Day> {
     print(res);
     return res;
   }
+
   Future<int> getAttended() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var res = prefs.getInt("attended");
@@ -140,7 +144,7 @@ class _DayState extends State<Day> {
 
     final TextStyle rusultedText = TextStyle(
         fontSize: 24.0,
-        color: roundedPercentage < minAttendence ? falseText : trueText);
+        color: roundedPercentage < minAttendence ? falseText : trueTextgrn);
 
     return Theme(
       data: ThemeData(
@@ -155,7 +159,9 @@ class _DayState extends State<Day> {
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
-                color: roundedPercentage < minAttendence ? falseBack : trueTextgrn,
+                color: roundedPercentage < minAttendence
+                    ? falseBack
+                    : trueBackgreen,
                 borderRadius: BorderRadius.all(Radius.circular(20.0))),
             child: Column(
               children: <Widget>[
@@ -170,7 +176,7 @@ class _DayState extends State<Day> {
                         style: TextStyle(
                             color: roundedPercentage < minAttendence
                                 ? falseText
-                                : trueText,
+                                : trueTextgrn,
                             fontSize: roundedPercentage == 100 ? 150.0 : 180,
                             height: 1.0),
                       ),
@@ -182,7 +188,7 @@ class _DayState extends State<Day> {
                             fontSize: 100.0,
                             color: roundedPercentage < minAttendence
                                 ? falseText
-                                : trueText,
+                                : trueTextgrn,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -193,12 +199,39 @@ class _DayState extends State<Day> {
                 Expanded(
                   flex: 1,
                   child: Center(
-                      child: Opacity(
-                    opacity: 0.7,
-                    child: Text(
-                      " Attended : $attended/$totalDays",
-                      style: rusultedText,
-                    ),
+                      child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Opacity(
+                        opacity: 0.7,
+                        child: Text(
+                          " Attended : $attended/$totalDays",
+                          style: rusultedText,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.edit,
+                          color: Colors.black54,
+                          size: 30.0,
+                        ),
+                        onPressed: () {
+                          showDialog(
+                              context: (context),
+                              child: AlartForDayEdit(
+                                isDark: widget.isDark,
+                                attended: attended,
+                                totalClasses: totalDays,
+                                setAttended: setAttended,
+                                setTotalDays: setTotalDays,
+                                getAllvar: getAllVar,
+                              ));
+                        },
+                      )
+                    ],
                   )),
                 ),
                 Expanded(
@@ -206,12 +239,14 @@ class _DayState extends State<Day> {
                   child: Container(
                     margin: EdgeInsets.symmetric(horizontal: 20.0),
                     decoration: BoxDecoration(
-                      border: Border.all(color:roundedPercentage < minAttendence
-                          ? Colors.redAccent
-                          : Colors.blue,width: 2.0),
-                      borderRadius: BorderRadius.all(Radius.circular(15.0))
-                    ),
-                    child: Center(child: Padding(
+                        border: Border.all(
+                            color: roundedPercentage < minAttendence
+                                ? Colors.redAccent
+                                : Colors.blue,
+                            width: 2.0),
+                        borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                    child: Center(
+                        child: Padding(
                       padding: const EdgeInsets.all(15.0),
                       child: warningWidget(roundedPercentage),
                     )),
@@ -232,8 +267,8 @@ class _DayState extends State<Day> {
                                   borderRadius: new BorderRadius.circular(15.0),
                                 ),
                                 onPressed: () async {
-                                   int newTotalDays = totalDays +1;
-                                   int newAttended = attended+1;
+                                  int newTotalDays = totalDays + 1;
+                                  int newAttended = attended + 1;
                                   setState(() {
                                     totalDays = newTotalDays;
                                     attended = newAttended;
@@ -262,8 +297,8 @@ class _DayState extends State<Day> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: new BorderRadius.circular(15.0),
                                 ),
-                                onPressed: () async{
-                                  int newTotalDays = totalDays +1;
+                                onPressed: () async {
+                                  int newTotalDays = totalDays + 1;
                                   setState(() {
                                     totalDays = newTotalDays;
                                   });
@@ -296,21 +331,26 @@ class _DayState extends State<Day> {
   // ignore: missing_return
   Widget warningWidget(int value) {
     if (value == 0) {
-      return textWidget("Welcome to Class Bunker App",value);
+      return textWidget("Welcome to Class Bunker App", value);
     } else if (value < minAttendence) {
-      return textWidget("You have to attend classes!",value);
+      return textWidget("You have to attend classes!", value);
     } else if (value == 100) {
       return textWidget(
-          "Excelent ,You don't have to worry about your attendence",value);
+          "Excelent ,You don't have to worry about your attendence", value);
     } else if (value > minAttendence) {
-      return textWidget("Every thing is fine for now.",value);
-    }else if (value == minAttendence) {
-      return textWidget("You have to attend classes!",value);
+      return textWidget("Every thing is fine for now.", value);
+    } else if (value == minAttendence) {
+      return textWidget("You have to attend classes!", value);
     }
   }
 
-  Text textWidget(String text,int value) {
-    return Text(text,style: TextStyle(fontSize: 16.0,color: value < minAttendence ? falseText : trueText),textAlign: TextAlign.center,);
+  Text textWidget(String text, int value) {
+    return Text(
+      text,
+      style: TextStyle(
+          fontSize: 16.0, color: value < minAttendence ? falseText : trueText),
+      textAlign: TextAlign.center,
+    );
   }
 
   Drawer buildDrawer() {
