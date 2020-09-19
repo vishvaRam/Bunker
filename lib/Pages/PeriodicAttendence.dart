@@ -112,7 +112,7 @@ class _PeriodicState extends State<Periodic> {
                   setMinAttendence: setMinAttendence),
             ),
             floatingActionButton: Padding(
-              padding: const EdgeInsets.only(bottom: 20.0),
+              padding: const EdgeInsets.only(bottom: 0.0),
               child: FloatingActionButton(
                 elevation: 12.0,
                 backgroundColor: widget.isDark ? floatingBTn : trueText,
@@ -476,6 +476,7 @@ class _PeriodicState extends State<Periodic> {
 
   showbottomSheet(context, TextEditingController _textController) {
     showModalBottomSheet(
+      isScrollControlled: true,
         backgroundColor: Colors.transparent,
         context: context,
         builder: (context) {

@@ -17,7 +17,7 @@ class _MainState extends State<Main> {
   bool isDark = false;
 
   Future<bool> getAppRunsFirstTime() async{
-    SharedPreferences prefs =await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var res = prefs.getBool("isFirstTime");
     if(res == true){
       return true;
