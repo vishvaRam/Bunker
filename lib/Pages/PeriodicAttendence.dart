@@ -1,4 +1,4 @@
-import 'package:bunker/Provider/ListBloc.dart';
+import '../Provider/ListBloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../Widgets/Drawer.dart';
@@ -112,7 +112,7 @@ class _PeriodicState extends State<Periodic> {
                   setMinAttendence: setMinAttendence),
             ),
             floatingActionButton: Padding(
-              padding: const EdgeInsets.only(bottom: 0.0),
+              padding: const EdgeInsets.only(bottom: 30.0),
               child: FloatingActionButton(
                 elevation: 12.0,
                 backgroundColor: widget.isDark ? floatingBTn : trueText,
