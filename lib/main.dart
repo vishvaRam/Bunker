@@ -63,7 +63,7 @@ class _MainState extends State<Main> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Bunker",
+      title: "Attendance Tracker",
       home: Theme(
           data: ThemeData(
               brightness: Brightness.dark),

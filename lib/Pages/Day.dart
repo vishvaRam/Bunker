@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../Widgets/AlartDialogWidget.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:share/share.dart';
 
 // ignore: must_be_immutable
 class Day extends StatefulWidget {
@@ -361,12 +363,10 @@ class _DayState extends State<Day> {
           children: <Widget>[
             DrawerHeader(
               child: Center(
-                  child: Text(
-                "Settings",
-                style: TextStyle(
-                    fontSize: 32.0,
-                    color: widget.isDark ? Colors.white : trueText),
-              )),
+                  child: SvgPicture.asset("Assets/settingsDark.svg",
+                      placeholderBuilder: (BuildContext context) => Container(
+                          padding: const EdgeInsets.all(10.0),
+                          child: const CircularProgressIndicator()))),
             ),
             ListTile(
               title: Text(
@@ -389,7 +389,7 @@ class _DayState extends State<Day> {
                     context: (context),
                     child: AlertDialog(
                       title: Text(
-                        "Min Attendence",
+                        "Min Attendance",
                         style: TextStyle(
                             color: widget.isDark ? Colors.white : trueText),
                       ),
@@ -461,7 +461,7 @@ class _DayState extends State<Day> {
                     ));
               },
               title: Text(
-                "Attendence",
+                "Attendance",
                 style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w400),
               ),
               trailing: Text(
@@ -472,21 +472,49 @@ class _DayState extends State<Day> {
                     color: widget.isDark ? Colors.white : trueText),
               ),
             ),
+
             ListTile(
               title: Text(
-                "Developer",
+                "Write a review",
                 style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w400),
               ),
               trailing: IconButton(
-                onPressed: () {
-                  _launchURL();
+                onPressed: () async {
+                  const url =
+                      'https://play.google.com/store/apps/details?id=vishva.of.messager.bunker';
+                  if (await canLaunch(url)) {
+                    await launch(url);
+                  } else {
+                    throw 'Could not launch $url';
+                  }
                 },
                 icon: Icon(
-                  Icons.open_in_new,
+                  Icons.rate_review_outlined,
                   color: widget.isDark ? Colors.white : trueText,
                 ),
               ),
-            )
+            ),
+            ListTile(
+              title: Text(
+                "Share",
+                style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w400),
+              ),
+              trailing: IconButton(
+                onPressed: () async {
+                  try {
+                    Share.share(
+                        "https://play.google.com/store/apps/details?id=vishva.of.messager.bunker",
+                        subject: "Attendance Tracker");
+                  } catch (e) {
+                    print(e);
+                  }
+                },
+                icon: Icon(
+                  Icons.share,
+                  color: widget.isDark ? Colors.white : trueText,
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -500,7 +528,7 @@ class _DayState extends State<Day> {
       elevation: 0.0,
       centerTitle: true,
       title: Text(
-        "Bunker",
+        "Attendance Tracker",
         style: TextStyle(
             fontSize: 24.0, color: widget.isDark ? Colors.white : trueText),
       ),

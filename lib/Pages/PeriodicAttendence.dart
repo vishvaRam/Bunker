@@ -7,6 +7,7 @@ import '../Provider/DataBase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import '../Widgets/AlartDialogWidget.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 final Color trueBack = Color(0xffE0F2FE);
 final Color trueBackgreen = Color(0xffDEFFEC);
@@ -100,151 +101,167 @@ class _PeriodicState extends State<Periodic> {
       child: Theme(
         data: ThemeData(
             brightness: widget.isDark ? Brightness.dark : Brightness.light),
-        child: Builder(
-          builder: (context) => Scaffold(
-            drawer: Drawer(
-              child: drawerView(
-                  isDark: widget.isDark,
-                  bloc: bloc,
-                  setTheme: setTheme,
-                  minAttendence: minAttendence,
-                  popupInput: popupInput,
-                  setMinAttendence: setMinAttendence),
-            ),
-            floatingActionButton: Padding(
-              padding: const EdgeInsets.only(bottom: 30.0),
-              child: FloatingActionButton(
-                elevation: 12.0,
-                backgroundColor: widget.isDark ? floatingBTn : trueText,
-                onPressed: () {
-                  showbottomSheet(context, textController);
-                },
-                child: Icon(
-                  Icons.add,
-                  color: widget.isDark ? trueText : Colors.white,
+        child: Scaffold(
+          body: Builder(
+            builder: (context) => Scaffold(
+              drawer: Drawer(
+                child: drawerView(
+                    isDark: widget.isDark,
+                    bloc: bloc,
+                    setTheme: setTheme,
+                    minAttendence: minAttendence,
+                    popupInput: popupInput,
+                    setMinAttendence: setMinAttendence),
+              ),
+              floatingActionButton: Padding(
+                padding: const EdgeInsets.only(bottom: 30.0),
+                child: FloatingActionButton(
+                  elevation: 12.0,
+                  backgroundColor: widget.isDark ? floatingBTn : trueText,
+                  onPressed: () {
+                    showbottomSheet(context, textController);
+                  },
+                  child: Icon(
+                    Icons.add,
+                    color: widget.isDark ? trueText : Colors.white,
+                  ),
                 ),
               ),
-            ),
-            appBar: buildAppBar(),
-            body: Builder(
-              builder: (context) => Container(
-                height: MediaQuery.of(context).size.height,
-                child: StreamBuilder<List<Data>>(
-                  stream: bloc.listOUT,
-                  builder:
-                      (BuildContext context, AsyncSnapshot<List<Data>> snap) {
-                    if (!snap.hasData) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (snap.data.length == 0) {
-                      return Center(
-                        child: Text("Empty"),
-                      );
-                    }
-                    return ListView.builder(
-                      itemCount: snap.data.length,
-                      itemBuilder: (BuildContext context, i) {
-                        return Slidable(
-                          closeOnScroll: true,
-                          actionPane: SlidableScrollActionPane(),
-                          actionExtentRatio: 0.25,
-                          child: buildCards(snap, i),
-                          actions: <Widget>[
-                            SlideAction(
-                              child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 20),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(15.0))),
-                                  child: Icon(
-                                    Icons.delete,
-                                    size: 38.0,
-                                    color: widget.isDark
-                                        ? Colors.redAccent
-                                        : Colors.red,
-                                  )),
-                              onTap: () {
-                                showDialog(
-                                    context: (context),
-                                    child: listDeleteConfirm(snap, i, context));
-                              },
+              appBar: buildAppBar(),
+              body: Builder(
+                builder: (context) => Container(
+                  height: MediaQuery.of(context).size.height,
+                  child: StreamBuilder<List<Data>>(
+                    stream: bloc.listOUT,
+                    builder:
+                        (BuildContext context, AsyncSnapshot<List<Data>> snap) {
+                      if (!snap.hasData) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snap.data.length == 0) {
+
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height:MediaQuery.of(context).size.height/5 ,),
+                            Container(
+                              height: MediaQuery.of(context).size.height/3,
+                              padding: const EdgeInsets.all(20.0),
+                              child: SvgPicture.asset("Assets/addTask.svg",
+                                  placeholderBuilder: (BuildContext context) => Container(
+                                      padding: const EdgeInsets.all(0.0),
+                                      child: Center(child: const CircularProgressIndicator()))),
                             ),
-                            SlideAction(
-                              child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 20),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(15.0))),
-                                  child: Icon(
-                                    Icons.edit,
-                                    size: 38.0,
-                                    color: widget.isDark
-                                        ? Colors.lightBlueAccent
-                                        : Colors.blue,
-                                  )),
-                              onTap: () {
-                                showDialog(
-                                    context: (context),
-                                    child: AlartsetState(
-                                      isDark: widget.isDark,
-                                      bloc: bloc,
-                                      i: i,
-                                      snap: snap,
-                                    ));
-                              },
-                            ),
-                          ],
-                          secondaryActions: <Widget>[
-                            SlideAction(
-                              child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 20),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(15.0))),
-                                  child: Icon(
-                                    Icons.edit,
-                                    size: 38.0,
-                                    color: widget.isDark
-                                        ? Colors.lightBlueAccent
-                                        : Colors.blue,
-                                  )),
-                              onTap: () {
-                                showDialog(
-                                    context: (context),
-                                    child: AlartsetState(
-                                      isDark: widget.isDark,
-                                      bloc: bloc,
-                                      i: i,
-                                      snap: snap,
-                                    ));
-                              },
-                            ),
-                            SlideAction(
-                              child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 20),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(15.0))),
-                                  child: Icon(
-                                    Icons.delete,
-                                    size: 38.0,
-                                    color: widget.isDark
-                                        ? Colors.redAccent
-                                        : Colors.red,
-                                  )),
-                              onTap: () {
-                                showDialog(
-                                    context: (context),
-                                    child: listDeleteConfirm(snap, i, context));
-                              },
-                            ),
+                            Expanded(child: Text("Create New Subject",style: TextStyle(fontSize: 18,color: widget.isDark ? floatingBTn : trueText,),))
                           ],
                         );
-                      },
-                    );
-                  },
+                      }
+                      return ListView.builder(
+                        itemCount: snap.data.length,
+                        itemBuilder: (BuildContext context, i) {
+                          return Slidable(
+                            closeOnScroll: true,
+                            actionPane: SlidableScrollActionPane(),
+                            actionExtentRatio: 0.25,
+                            child: buildCards(snap, i),
+                            actions: <Widget>[
+                              SlideAction(
+                                child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: 20),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(15.0))),
+                                    child: Icon(
+                                      Icons.delete,
+                                      size: 38.0,
+                                      color: widget.isDark
+                                          ? Colors.redAccent
+                                          : Colors.red,
+                                    )),
+                                onTap: () {
+                                  showDialog(
+                                      context: (context),
+                                      child: listDeleteConfirm(snap, i, context));
+                                },
+                              ),
+                              SlideAction(
+                                child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: 20),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(15.0))),
+                                    child: Icon(
+                                      Icons.edit,
+                                      size: 38.0,
+                                      color: widget.isDark
+                                          ? Colors.lightBlueAccent
+                                          : Colors.blue,
+                                    )),
+                                onTap: () {
+                                  showDialog(
+                                      context: (context),
+                                      child: AlartsetState(
+                                        isDark: widget.isDark,
+                                        bloc: bloc,
+                                        i: i,
+                                        snap: snap,
+                                      ));
+                                },
+                              ),
+                            ],
+                            secondaryActions: <Widget>[
+                              SlideAction(
+                                child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: 20),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(15.0))),
+                                    child: Icon(
+                                      Icons.edit,
+                                      size: 38.0,
+                                      color: widget.isDark
+                                          ? Colors.lightBlueAccent
+                                          : Colors.blue,
+                                    )),
+                                onTap: () {
+                                  showDialog(
+                                      context: (context),
+                                      child: AlartsetState(
+                                        isDark: widget.isDark,
+                                        bloc: bloc,
+                                        i: i,
+                                        snap: snap,
+                                      ));
+                                },
+                              ),
+                              SlideAction(
+                                child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: 20),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(15.0))),
+                                    child: Icon(
+                                      Icons.delete,
+                                      size: 38.0,
+                                      color: widget.isDark
+                                          ? Colors.redAccent
+                                          : Colors.red,
+                                    )),
+                                onTap: () {
+                                  showDialog(
+                                      context: (context),
+                                      child: listDeleteConfirm(snap, i, context));
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -258,11 +275,11 @@ class _PeriodicState extends State<Periodic> {
       AsyncSnapshot<List<Data>> snap, int i, BuildContext context) {
     return AlertDialog(
         title: Text(
-          "Delete ${snap.data[i].subject} ?",
+          "Delete ${snap.data[i].subject}?",
           style: TextStyle(
               fontSize: 24.0, color: widget.isDark ? Colors.white : trueText),
         ),
-        content: Text("This is permanent and cannot be undone"),
+        content: Text("This change cannot be undo!"),
         elevation: 12.0,
         actions: <Widget>[
           OutlineButton.icon(
@@ -311,7 +328,7 @@ class _PeriodicState extends State<Periodic> {
       elevation: 0.0,
       centerTitle: true,
       title: Text(
-        "Bunker",
+        "Attendance Tracker",
         style: TextStyle(
             fontSize: 24.0, color: widget.isDark ? Colors.white : trueText),
       ),
@@ -323,7 +340,7 @@ class _PeriodicState extends State<Periodic> {
             },
             icon: Icon(
               Icons.settings,
-              color: widget.isDark ? Colors.white : trueText,
+              color: widget.isDark ? floatingBTn : trueText,
             ),
           ),
         )
@@ -509,6 +526,7 @@ class _PeriodicState extends State<Periodic> {
                           horizontal: 20.0, vertical: 15.0),
                       child: TextField(
                         controller: _textController,
+
                         style: TextStyle(fontSize: 22.0),
                         decoration:
                             InputDecoration(hintText: "Type the subject"),

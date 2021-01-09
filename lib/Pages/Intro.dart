@@ -55,8 +55,8 @@ class _IntroState extends State<Intro> {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: Text(
-                        "Bunker",
-                        style: TextStyle(fontSize: 38.0, color: trueBack),
+                        "Attendance Tracker",
+                        style: TextStyle(fontSize: 32.0, color: trueBack),
                       ),
                     ),
                   ),
@@ -64,7 +64,7 @@ class _IntroState extends State<Intro> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 20.0, right: 8.0),
                       child: Text(
-                          "Select the attendence type used in your schoole,college or Institute",
+                          "Select the attendance type used in your school,college or Institute",
                           style:
                               TextStyle(fontSize: 20.0, color: Colors.white70)),
                     ),
@@ -78,7 +78,7 @@ class _IntroState extends State<Intro> {
                         color: falseBtn,
                       ),
                       title: Text(
-                        "It cannot be changed after !",
+                        "It cannot be changed after!",
                         style: TextStyle(color: falseBtn),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -118,7 +118,7 @@ class _IntroState extends State<Intro> {
                                           ],
                                         ),
                                         content: Text(
-                                            "This change is permanent.You cannot change after !"),
+                                            "This change is permanent.You cannot change after!"),
                                         actions: <Widget>[
                                           OutlineButton.icon(
                                             borderSide: BorderSide(
@@ -204,7 +204,7 @@ class _IntroState extends State<Intro> {
                                           ],
                                         ),
                                         content: Text(
-                                            "This change is permanent.You cannot change after !"),
+                                            "This change is permanent.You cannot change after!"),
                                         actions: <Widget>[
                                           OutlineButton.icon(
                                             borderSide: BorderSide(
