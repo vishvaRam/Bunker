@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../Widgets/AlartDialogWidget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:share/share.dart';
+import '../Pages/PeriodicAttendence.dart';
 
 // ignore: must_be_immutable
 class Day extends StatefulWidget {
@@ -31,14 +32,7 @@ class _DayState extends State<Day> {
   int attended = 0;
   var attendenceController = TextEditingController();
 
-  _launchURL() async {
-    const url = 'https://www.instagram.com/vishva_photography1/';
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
+
 
   //Setting Theme
   Future<bool> setThemeData(bool local) async {
@@ -46,6 +40,13 @@ class _DayState extends State<Day> {
     var res = await prefs.setBool("theme", local);
     print(res);
     return res;
+  }
+
+  // Set Periodic Atendance
+  setPeriodic(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var res =await prefs.setBool("periodic", value);
+    print(res);
   }
 
   // Getting Theme
@@ -472,7 +473,6 @@ class _DayState extends State<Day> {
                     color: widget.isDark ? Colors.white : trueText),
               ),
             ),
-
             ListTile(
               title: Text(
                 "Write a review",
@@ -515,6 +515,34 @@ class _DayState extends State<Day> {
                 ),
               ),
             ),
+            Divider(thickness: 1.5,),
+            ListTile(
+              title: Text(
+                "Switch to Periodic",
+                style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w400),
+              ),
+              trailing: IconButton(
+                onPressed: () async {
+                  setPeriodic(true);
+                  Navigator.of(context).popUntil(
+                          (route) => route.isFirst);
+                  Navigator.of(context).popUntil(
+                          (route) => route.isFirst);
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              Periodic(
+                                isDark: widget.isDark,
+                              )));
+                },
+                icon: Icon(
+                  Icons.open_in_new,
+                  color: widget.isDark ? Colors.white : trueText,
+                ),
+              ),
+            ),
+            Divider(thickness: 1.5,),
           ],
         ),
       ),
@@ -527,10 +555,14 @@ class _DayState extends State<Day> {
       backgroundColor: Colors.transparent,
       elevation: 0.0,
       centerTitle: true,
-      title: Text(
-        "Attendance Tracker",
-        style: TextStyle(
-            fontSize: 24.0, color: widget.isDark ? Colors.white : trueText),
+      title: Row(
+        children: [
+          Text(
+            "Attendance Tracker",
+            style: TextStyle(
+                fontSize: 24.0, color: widget.isDark ? Colors.white : trueText),
+          ),
+        ],
       ),
       actions: <Widget>[
         Builder(

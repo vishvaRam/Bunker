@@ -86,7 +86,7 @@ class _MainState extends State<Main> {
                         );
                       }
                       else{
-                        return Intro(true);
+                        return Intro(false);
                       }
                     }
                     return Container();

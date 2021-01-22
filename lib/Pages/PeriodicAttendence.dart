@@ -498,7 +498,7 @@ class _PeriodicState extends State<Periodic> {
         context: context,
         builder: (context) {
           return AnimatedPadding(
-            duration: Duration(milliseconds: 100),
+            duration: Duration(milliseconds: 50),
             curve: Curves.easeIn,
             padding: MediaQuery.of(context).viewInsets,
             child: Container(

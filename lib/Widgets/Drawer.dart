@@ -1,3 +1,4 @@
+import 'package:Bunker/Pages/Day.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,14 +19,13 @@ Widget drawerView(
     int minAttendence,
     Function setMinAttendence,
     TextEditingController popupInput}) {
-  _launchURL() async {
-    const url = 'https://www.instagram.com/vishva_photography1/';
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
+
+  setPeriodic(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var res =await prefs.setBool("periodic", value);
+    print(res);
   }
+
 
   Future<bool> setMinAttendenceinDisk(int value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -205,7 +205,6 @@ Widget drawerView(
             ),
           ),
         ),
-
         ListTile(
           title: Text(
             "Write a review",
@@ -227,7 +226,6 @@ Widget drawerView(
             ),
           ),
         ),
-
         ListTile(
           title: Text(
             "Share",
@@ -249,6 +247,30 @@ Widget drawerView(
             ),
           ),
         ),
+        Divider(thickness: 1.5,),
+        ListTile(
+          title: Text(
+            "Switch to Day",
+            style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.w400),
+          ),
+          trailing: IconButton(
+            onPressed: () async {
+              setPeriodic(false);
+              Navigator.of(context).popUntil(
+                      (route) => route.isFirst);
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          Day(isDark)));
+            },
+            icon: Icon(
+              Icons.open_in_new,
+              color: isDark ? Colors.white : trueText,
+            ),
+          ),
+        ),
+        Divider(thickness: 1.5,),
       ],
     ),
   );
